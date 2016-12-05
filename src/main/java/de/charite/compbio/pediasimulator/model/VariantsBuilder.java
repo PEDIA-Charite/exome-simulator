@@ -45,6 +45,9 @@ public class VariantsBuilder {
 		this.variantNormalizer = variantNormalizer;
 	}
 
+	public VariantsBuilder() {
+	}
+
 	public static final class Builder {
 
 		private String jannovarDB;
@@ -57,21 +60,27 @@ public class VariantsBuilder {
 
 		public VariantsBuilder build() {
 
-			if (jannovarDB == null || genomeFasta == null)
-				throw new RuntimeException("Jannovar database and Genome fasta file have to be set");
+			if (jannovarDB == null && genomeFasta != null)
+				throw new RuntimeException("Jannovar database file have to be set");
+			if (jannovarDB != null && genomeFasta == null)
+				throw new RuntimeException("Reference fasta file have to be set");
+			if (jannovarDB != null)
+				try {
 
-			try {
-				JannovarData jannovarData = new JannovarDataSerializer(jannovarDB).load();
-				ReferenceDictionary refDict = jannovarData.getRefDict();
-				ImmutableMap<Integer, Chromosome> chromosomeMap = jannovarData.getChromosomes();
-				VariantAnnotator annotator = new VariantAnnotator(refDict, chromosomeMap,
-						new AnnotationBuilderOptions());
-				VariantNormalizer variantNormalizer = new VariantNormalizer(genomeFasta);
-				return new VariantsBuilder(jannovarData, refDict, chromosomeMap, annotator, variantNormalizer);
-			} catch (SerializationException e) {
-				throw new RuntimeException("Cannot deserialize Jannovar database", e);
-			} catch (JannovarVarDBException e) {
-				throw new RuntimeException("Cannot initialize allele matcher", e);
+					JannovarData jannovarData = new JannovarDataSerializer(jannovarDB).load();
+					ReferenceDictionary refDict = jannovarData.getRefDict();
+					ImmutableMap<Integer, Chromosome> chromosomeMap = jannovarData.getChromosomes();
+					VariantAnnotator annotator = new VariantAnnotator(refDict, chromosomeMap,
+							new AnnotationBuilderOptions());
+					VariantNormalizer variantNormalizer = new VariantNormalizer(genomeFasta);
+					return new VariantsBuilder(jannovarData, refDict, chromosomeMap, annotator, variantNormalizer);
+				} catch (SerializationException e) {
+					throw new RuntimeException("Cannot deserialize Jannovar database", e);
+				} catch (JannovarVarDBException e) {
+					throw new RuntimeException("Cannot initialize allele matcher", e);
+				}
+			else {
+				return new VariantsBuilder();
 			}
 
 		}
@@ -86,30 +95,42 @@ public class VariantsBuilder {
 	public List<Variant> get(VariantContext vc) throws InvalidCoordinatesException, AnnotationException {
 
 		List<Variant> outputs = new ArrayList<>();
-		Integer boxedInt = refDict.getContigNameToID().get(vc.getContig());
-		if (boxedInt == null)
-			throw new InvalidCoordinatesException("Unknown reference " + vc.getContig(),
-					AnnotationMessage.ERROR_CHROMOSOME_NOT_FOUND);
-		int chr = boxedInt.intValue();
 		final String ref = vc.getReference().getBaseString();
 		final int pos = vc.getStart();
-		for (int i = 0; i < vc.getAlternateAlleles().size(); i++) {
-			final Allele altAllele = vc.getAlternateAllele(i);
-			final String alt = altAllele.getBaseString();
+		if (jannovarData != null) {
 
-			VariantDescription vd = new VariantDescription(vc.getContig(), pos - 1, ref, alt);
-			VariantDescription nd = variantNormalizer.normalizeVariant(vd);
-			if (nd.getRef().isEmpty() || nd.getAlt().isEmpty()) // is insertion or deletion
-				nd = variantNormalizer.normalizeInsertion(vd);
+			Integer boxedInt = refDict.getContigNameToID().get(vc.getContig());
+			if (boxedInt == null)
+				throw new InvalidCoordinatesException("Unknown reference " + vc.getContig(),
+						AnnotationMessage.ERROR_CHROMOSOME_NOT_FOUND);
+			int chr = boxedInt.intValue();
+			for (int i = 0; i < vc.getAlternateAlleles().size(); i++) {
+				final Allele altAllele = vc.getAlternateAllele(i);
+				final String alt = altAllele.getBaseString();
 
-			GenomeVariant g = new GenomeVariant(
-					new GenomePosition(refDict, Strand.FWD, chr, nd.getPos(), PositionType.ZERO_BASED), nd.getRef(),
-					nd.getAlt());
-			VariantAnnotations annotatons = annotator.buildAnnotations(g);
+				VariantDescription vd = new VariantDescription(vc.getContig(), pos - 1, ref, alt);
+				VariantDescription nd = variantNormalizer.normalizeVariant(vd);
+				if (nd.getRef().isEmpty() || nd.getAlt().isEmpty()) // is insertion or deletion
+					nd = variantNormalizer.normalizeInsertion(vd);
 
-			outputs.add(new Variant(vc.getContig(), nd.getPos() + 1, nd.getEnd(), nd.getRef(), nd.getAlt(),
-					annotatons.getAnnotations()));
-
+				GenomeVariant g = new GenomeVariant(
+						new GenomePosition(refDict, Strand.FWD, chr, nd.getPos(), PositionType.ZERO_BASED), nd.getRef(),
+						nd.getAlt());
+				VariantAnnotations annotatons = annotator.buildAnnotations(g);
+				outputs.add(new Variant(vc.getContig(), nd.getPos() + 1, nd.getEnd(), nd.getRef(), nd.getAlt(),
+						annotatons.getAnnotations()));
+			}
+		} else {
+			List<Object> phred = vc.getCommonInfo().getAttributeAsList("caddPHRED");
+			List<Object> raw = vc.getCommonInfo().getAttributeAsList("caddRawScore");
+			List<Object> annotation = vc.getCommonInfo().getAttributeAsList("ANN");
+			for (int i = 0; i < vc.getAlternateAlleles().size(); i++) {
+				final String alt = vc.getAlternateAllele(i).getBaseString();
+				Variant variant = new Variant(vc.getContig(), pos, vc.getEnd(), ref, alt);
+				variant.setScore(ScoreType.CADD, Double.parseDouble((String) raw.get(i)));
+				variant.setGene(((String)annotation.get(i)).split("\\|")[3]);
+				outputs.add(variant);
+			}
 		}
 		return outputs;
 	}

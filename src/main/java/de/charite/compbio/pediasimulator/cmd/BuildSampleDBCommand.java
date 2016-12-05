@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import com.google.common.collect.ImmutableSet;
@@ -14,9 +15,11 @@ import de.charite.compbio.jannovar.annotation.VariantEffect;
 import de.charite.compbio.jannovar.htsjdk.InvalidCoordinatesException;
 import de.charite.compbio.pediasimulator.cli.BuildSampleDBOptions;
 import de.charite.compbio.pediasimulator.cli.CommandLineParsingException;
+import de.charite.compbio.pediasimulator.filter.JannovarEffectInfoFilter;
 import de.charite.compbio.pediasimulator.io.OMIMGeneLoader;
 import de.charite.compbio.pediasimulator.model.AnnotationFilter;
 import de.charite.compbio.pediasimulator.model.Sample;
+import de.charite.compbio.pediasimulator.model.ScoreType;
 import de.charite.compbio.pediasimulator.model.Variant;
 import de.charite.compbio.pediasimulator.model.VariantsBuilder;
 import de.charite.compbio.pediasimulator.score.CADDScoreExtractor;
@@ -32,8 +35,8 @@ public class BuildSampleDBCommand implements ICommand {
 	/** Configuration */
 	private BuildSampleDBOptions options;
 	private VariantsBuilder variantsBuilder;
-	private CADDScoreExtractor caddScoreExtractor;
-	private AnnotationFilter annotationFilter;
+//	private CADDScoreExtractor caddScoreExtractor;
+//	private AnnotationFilter annotationFilter;
 
 	private List<Sample> samples = new ArrayList<>();
 
@@ -73,31 +76,37 @@ public class BuildSampleDBCommand implements ICommand {
 		// 1. Config parsers
 		// 1.1 Init 1000G VCF file
 		VCFFileReader reader = new VCFFileReader(options.getVcfInputFile());
+		
+		// 1.6 load gene files from omim used for filtering
+		OMIMGeneLoader omimGeneLoader = new OMIMGeneLoader(options.getOMIMFile());
+		ImmutableSet<String> genes = omimGeneLoader.load();
+		
 		// 1.2 init filter
 		ImmutableSet<IFilter> filters = new ImmutableSet.Builder<IFilter>()
-				.add(new LessOrEqualInfoFieldFilter("exacBEST_AF", 0.01))
+				.add(new LessOrEqualInfoFieldFilter("EXAC_BEST_AF", 0.01))
+				.add(new LessOrEqualInfoFieldFilter("UK10K_AF", 0.01))
 				.add(new LessOrEqualInfoFieldFilter("AF", 0.01)).add(new LessOrEqualInfoFieldFilter("AFR_AF", 0.01))
 				.add(new LessOrEqualInfoFieldFilter("AMR_AF", 0.01)).add(new LessOrEqualInfoFieldFilter("EAS_AF", 0.01))
 				.add(new LessOrEqualInfoFieldFilter("EUR_AF", 0.01)).add(new LessOrEqualInfoFieldFilter("SAS_AF", 0.01))
+				.add(new LessOrEqualInfoFieldFilter("SAS_AF", 0.01))
+				.add(new JannovarEffectInfoFilter(VariantEffect._SMALLEST_MODERATE_IMPACT))
+				.add(new JannovarGeneInfoFilter(genes))
 				.build();
 		// 1.3 initial sampler
 		VCFSampler.Builder builder = new VCFSampler.Builder().vcfReader(reader).seed(42).filters(filters);
 
 		// 1.4 initialize the variants builder for normalization and annotation of variants;
-		this.variantsBuilder = new VariantsBuilder.Builder().jannovarDB(options.getJannovarDB())
-				.genomeFile(options.getGenomeFastaFile()).build();
+		this.variantsBuilder = new VariantsBuilder.Builder().build();
 
 		// 1.5 CADD score extractor
-		this.caddScoreExtractor = new CADDScoreExtractor.Builder().indels(options.getCADDIndel())
-				.snvs(options.getCADDSNV()).build();
+//		this.caddScoreExtractor = new CADDScoreExtractor.Builder().indels(options.getCADDIndel())
+//				.snvs(options.getCADDSNV()).build();
 
-		// 1.6 load gene files from omim used for filtering
-		OMIMGeneLoader omimGeneLoader = new OMIMGeneLoader(options.getOMIMFile());
-		ImmutableSet<String> genes = omimGeneLoader.load();
+
 
 		// 1.7 variants filter of effect
-		this.annotationFilter = new AnnotationFilter.Builder().lessOrEqualThan(VariantEffect._SMALLEST_MODERATE_IMPACT)
-				.genes(genes).build();
+//		this.annotationFilter = new AnnotationFilter.Builder().lessOrEqualThan(VariantEffect._SMALLEST_MODERATE_IMPACT)
+//				.genes(genes).build();
 
 		// 2 Get the samples to iterate
 		List<String> samples = reader.getFileHeader().getSampleNamesInOrder();
@@ -123,15 +132,7 @@ public class BuildSampleDBCommand implements ICommand {
 					throw new RuntimeException("Cannot convert " + vc + " int variants", e);
 				}
 
-				for (Variant variant : variants) {
-					Optional<Variant> optVariant = this.annotationFilter.filter(variant);
-					if (!optVariant.isPresent())
-						continue;
-					variant = optVariant.get();
-					this.caddScoreExtractor.annotate(variant);
-					sample.add(variant);
-
-				}
+				sample.addAll(variants);
 			}
 			System.out.printf(" --- found %d genes.\n", +sample.getScoresPerGene().keySet().size());
 			this.samples.add(sample);

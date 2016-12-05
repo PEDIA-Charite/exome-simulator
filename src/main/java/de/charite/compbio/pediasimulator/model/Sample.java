@@ -1,8 +1,9 @@
 package de.charite.compbio.pediasimulator.model;
 
 import java.util.HashMap;
-import java.util.Map;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import com.google.common.collect.ArrayListMultimap;
@@ -14,7 +15,7 @@ public class Sample {
 
 	private String name;
 
-	Map<String,ListMultimap<ScoreType,Double>> scoresPerGene;
+	Map<String, ListMultimap<ScoreType, Double>> scoresPerGene;
 
 	public Sample(String sampleName) {
 		this.name = sampleName;
@@ -23,9 +24,7 @@ public class Sample {
 
 	public void add(Variant variant) {
 		Set<String> genes = new HashSet<>();
-		for (Annotation annotation : variant.getAnnotations()) {
-			genes.add(annotation.getGeneSymbol());
-		}
+		genes.addAll(variant.getGenes());
 		for (String gene : genes) {
 			if (!scoresPerGene.containsKey(gene))
 				scoresPerGene.put(gene, ArrayListMultimap.create());
@@ -34,9 +33,15 @@ public class Sample {
 		}
 
 	}
-	
+
 	public Map<String, ListMultimap<ScoreType, Double>> getScoresPerGene() {
 		return scoresPerGene;
+	}
+
+	public void addAll(List<Variant> variants) {
+		for (Variant variant : variants) {
+			add(variant);
+		}
 	}
 
 }
