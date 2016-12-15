@@ -123,6 +123,8 @@ public class BuildSampleDBCommand implements ICommand {
 			// 3.2 iterate over variants
 			while (sampler.hasNext()) {
 				VariantContext vc = sampler.next();
+				if (vc.isSymbolic()) //skip symbolic variants
+					continue;
 
 				List<Variant> variants;
 				try {

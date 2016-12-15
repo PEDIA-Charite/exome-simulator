@@ -127,7 +127,8 @@ public class VariantsBuilder {
 			for (int i = 0; i < vc.getAlternateAlleles().size(); i++) {
 				final String alt = vc.getAlternateAllele(i).getBaseString();
 				Variant variant = new Variant(vc.getContig(), pos, vc.getEnd(), ref, alt);
-				variant.setScore(ScoreType.CADD, Double.parseDouble((String) raw.get(i)));
+				if (!(raw.isEmpty() || raw.get(i).equals("."))) //FIXME what happen with unknown indels?
+					variant.setScore(ScoreType.CADD, Double.parseDouble((String) raw.get(i)));
 				variant.setGene(((String)annotation.get(i)).split("\\|")[3]);
 				outputs.add(variant);
 			}

@@ -13,6 +13,9 @@ public class JannovarEffectInfoFilter extends AInfoFieldFilter {
 	protected boolean compareInfoType(Object should, Object is) {
 		VariantEffect shouldEffect = (VariantEffect) should;
 		String[] annotation = ((String) is).split("\\|");
+		
+		if (annotation.length == 0 || annotation[0].equals("."))
+			return false;
 
 		VariantEffect effect = VariantEffect._SMALLEST_LOW_IMPACT;
 		for (VariantEffect e : VariantEffect.values()) {
