@@ -16,6 +16,7 @@ import de.charite.compbio.jannovar.htsjdk.InvalidCoordinatesException;
 import de.charite.compbio.pediasimulator.cli.BuildSampleDBOptions;
 import de.charite.compbio.pediasimulator.cli.CommandLineParsingException;
 import de.charite.compbio.pediasimulator.filter.JannovarEffectInfoFilter;
+import de.charite.compbio.pediasimulator.filter.JannovarGeneInfoFilter;
 import de.charite.compbio.pediasimulator.io.OMIMGeneLoader;
 import de.charite.compbio.pediasimulator.model.AnnotationFilter;
 import de.charite.compbio.pediasimulator.model.Sample;
