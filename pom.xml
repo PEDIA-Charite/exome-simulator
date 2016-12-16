@@ -7,6 +7,12 @@
 	<name>pedia-simulator</name>
 	<description>Using simulated exomes to simulate pedia patients</description>
 	<packaging>jar</packaging>
+
+	<properties>
+		<jannovar.version>0.20-SNAPSHOT</jannovar.version>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	</properties>
+
 	<dependencies>
 		<dependency>
 			<groupId>com.github.samtools</groupId>
@@ -26,27 +32,27 @@
 		<dependency>
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
-			<version>19.0</version>
+			<version>20.0</version>
 		</dependency>
 		<dependency>
 			<groupId>de.charite.compbio</groupId>
 			<artifactId>jannovar-core</artifactId>
-			<version>0.18-SNAPSHOT</version>
+			<version>${jannovar.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>de.charite.compbio</groupId>
 			<artifactId>jannovar-htsjdk</artifactId>
-			<version>0.18-SNAPSHOT</version>
+			<version>${jannovar.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>de.charite.compbio</groupId>
 			<artifactId>jannovar-hgvs</artifactId>
-			<version>0.18-SNAPSHOT</version>
+			<version>${jannovar.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>de.charite.compbio</groupId>
 			<artifactId>jannovar-vardbs</artifactId>
-			<version>0.18-SNAPSHOT</version>
+			<version>${jannovar.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.commons</groupId>
