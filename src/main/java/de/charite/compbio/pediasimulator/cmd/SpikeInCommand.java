@@ -24,6 +24,7 @@ public class SpikeInCommand implements ICommand {
 
 	/** Configuration */
 	private SpikeInOptions options;
+	private int variantCount;
 
 	public SpikeInCommand(String argv[], Namespace args) throws CommandLineParsingException {
 		this.options = new SpikeInOptions();
@@ -96,23 +97,25 @@ public class SpikeInCommand implements ICommand {
 			header.addMetaDataLine(new VCFHeaderLine("BackgroundSample", sampleName));
 			writer.writeHeader(header);
 			
+			
 			// iterate and write
-			int j = 0;
-			while (spikeIn.hasNext()) {
-				j++;
-				VariantContext vc = spikeIn.next();
-				writer.add(vc);
-			}
+			variantCount = 0;
+			spikeIn.stream().peek(vc -> count()).forEach(vc -> writer.add(vc));
+			
 			
 			// close
 			writer.close();
 			spikeIn.close();
 
-			System.out.printf(" --- created %s_%s.vcf.gz with %d variants.\n", sampleName, backgroundName, j);
+			System.out.printf(" --- created %s_%s.vcf.gz with %d variants.\n", sampleName, backgroundName, variantCount);
 		}
 
 		System.exit(0);
 
+	}
+
+	private void count() {
+		variantCount++;
 	}
 
 }
