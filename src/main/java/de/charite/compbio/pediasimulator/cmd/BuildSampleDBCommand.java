@@ -5,8 +5,6 @@ import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 
 import com.google.common.collect.ImmutableSet;
 
@@ -18,12 +16,9 @@ import de.charite.compbio.pediasimulator.cli.CommandLineParsingException;
 import de.charite.compbio.pediasimulator.filter.JannovarEffectInfoFilter;
 import de.charite.compbio.pediasimulator.filter.JannovarGeneInfoFilter;
 import de.charite.compbio.pediasimulator.io.OMIMGeneLoader;
-import de.charite.compbio.pediasimulator.model.AnnotationFilter;
 import de.charite.compbio.pediasimulator.model.Sample;
-import de.charite.compbio.pediasimulator.model.ScoreType;
 import de.charite.compbio.pediasimulator.model.Variant;
 import de.charite.compbio.pediasimulator.model.VariantsBuilder;
-import de.charite.compbio.pediasimulator.score.CADDScoreExtractor;
 import de.charite.compbio.simdrom.filter.IFilter;
 import de.charite.compbio.simdrom.filter.LessOrEqualInfoFieldFilter;
 import de.charite.compbio.simdrom.sampler.vcf.VCFSampler;
