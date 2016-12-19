@@ -3,6 +3,7 @@ package de.charite.compbio.pediasimulator.cmd;
 import java.util.List;
 import java.util.Random;
 
+import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableSet;
 
 import de.charite.compbio.pediasimulator.cli.CommandLineParsingException;
@@ -23,12 +24,14 @@ import net.sourceforge.argparse4j.inf.Namespace;
 public class SpikeInCommand implements ICommand {
 
 	/** Configuration */
-	private SpikeInOptions options;
+	private final SpikeInOptions options;
 	private int variantCount;
+	private final String command;
 
 	public SpikeInCommand(String argv[], Namespace args) throws CommandLineParsingException {
 		this.options = new SpikeInOptions();
 		this.options.setFromArgs(args);
+		this.command = "java -jar pedia-simulator.jar " + Joiner.on(" ").join(argv);
 	}
 
 	/**
@@ -93,8 +96,9 @@ public class SpikeInCommand implements ICommand {
 
 			// Header
 			VCFHeader header = spikeIn.getVCFHeader();
-			header.addMetaDataLine(new VCFHeaderLine("SpikeInSample", sampleName));
-			header.addMetaDataLine(new VCFHeaderLine("BackgroundSample", sampleName));
+			header.addMetaDataLine(new VCFHeaderLine("PediaSimulatorSpikeInSample", sampleName));
+			header.addMetaDataLine(new VCFHeaderLine("PediaSimulatorBackgroundSample", sampleName));
+			header.addMetaDataLine(new VCFHeaderLine("PediaSimulatorCommand", command));
 			writer.writeHeader(header);
 			
 			
