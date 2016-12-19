@@ -9,7 +9,7 @@
 	<packaging>jar</packaging>
 
 	<properties>
-		<jannovar.version>0.20-SNAPSHOT</jannovar.version>
+		<jannovar.version>0.20</jannovar.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
 
