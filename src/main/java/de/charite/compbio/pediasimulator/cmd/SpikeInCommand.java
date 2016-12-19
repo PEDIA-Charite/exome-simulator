@@ -13,7 +13,6 @@ import de.charite.compbio.pediasimulator.io.OMIMGeneLoader;
 import de.charite.compbio.simdrom.filter.IFilter;
 import de.charite.compbio.simdrom.sampler.SpikeIn;
 import de.charite.compbio.simdrom.sampler.vcf.VCFSampler;
-import htsjdk.variant.variantcontext.VariantContext;
 import htsjdk.variant.variantcontext.writer.VariantContextWriter;
 import htsjdk.variant.variantcontext.writer.VariantContextWriterBuilder;
 import htsjdk.variant.vcf.VCFFileReader;
