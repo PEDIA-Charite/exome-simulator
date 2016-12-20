@@ -55,6 +55,9 @@ java -jar pedia-simulator-0.0.1-SNAPSHOT.jar spike-in \
 -out outdir
 ```
 
+If you want to generate files only for a subset of samples you can use the `--sample` option to define one ore more samples of the mutation VCF. 
+
+
 Run `java -jar pedia-simulator-0.0.1-SNAPSHOT.jar spike-in -h` to see the help. 
  
 

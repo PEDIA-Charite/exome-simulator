@@ -69,7 +69,12 @@ public class SpikeInCommand implements ICommand {
 
 		// 2 Get the samples to iterate
 		List<String> backgroundSamples = backgroundReader.getFileHeader().getSampleNamesInOrder();
-		List<String> mutationSamples = mutationReader.getFileHeader().getSampleNamesInOrder();
+		List<String> mutationSamples;
+		if (options.getSamples().isEmpty())
+			mutationSamples = mutationReader.getFileHeader().getSampleNamesInOrder();
+		else
+			mutationSamples = options.getSamples();
+			
 
 		// 3 iterate
 		// 3.1 iterate over mutation samples

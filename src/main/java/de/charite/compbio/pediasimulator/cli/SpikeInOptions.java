@@ -1,6 +1,8 @@
 package de.charite.compbio.pediasimulator.cli;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.BiFunction;
 
 import de.charite.compbio.pediasimulator.cmd.SpikeInCommand;
@@ -15,6 +17,7 @@ public class SpikeInOptions {
 	private File omimFile;
 	private String folder;
 	private Integer seed;
+	private List<String> samples;
 
 	public static void setupParser(Subparsers subparsers) {
 		BiFunction<String[], Namespace, SpikeInCommand> handler = (argv, args) -> {
@@ -32,8 +35,9 @@ public class SpikeInOptions {
 		parser.addArgument("-out", "--output-folder").type(String.class).nargs(1).required(true)
 				.help("VCF file of input variants");
 		parser.addArgument("-o", "--omim").type(File.class).nargs(1).required(true).help("OMIM genemap2 file!");
-		parser.addArgument("-s", "--seed").type(Integer.class).nargs("?")
-		.help("Seed for picking pick random sample.");
+		parser.addArgument("-s", "--seed").type(Integer.class).nargs("?").help("Seed for picking pick random sample.");
+		parser.addArgument("--sample").type(String.class).setDefault(new ArrayList<>()).nargs("*").help(
+				"Set one or multiple sample names of the mutation file to generate spike in only these samples instead of all.");
 
 		parser.defaultHelp(true);
 	}
@@ -44,6 +48,7 @@ public class SpikeInOptions {
 		this.omimFile = (File) res.getList("omim").get(0);
 		this.folder = (String) res.getList("output_folder").get(0);
 		this.seed = res.getInt("seed");
+		this.samples = res.getList("sample");
 	}
 
 	public File getVcfInputFile() {
@@ -57,11 +62,15 @@ public class SpikeInOptions {
 	public String getFolder() {
 		return folder;
 	}
-	
+
 	public File getVcfMutationFile() {
 		return vcfMutationFile;
 	}
 	
+	public List<String> getSamples() {
+		return samples;
+	}
+
 	public Integer getSeed() {
 		return seed;
 	}
