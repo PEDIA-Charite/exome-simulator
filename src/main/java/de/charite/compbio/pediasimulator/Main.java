@@ -3,6 +3,7 @@ package de.charite.compbio.pediasimulator;
 import java.util.function.BiFunction;
 
 import de.charite.compbio.pediasimulator.cli.BuildSampleDBOptions;
+import de.charite.compbio.pediasimulator.cli.JsonWithVCFExtenderOptions;
 import de.charite.compbio.pediasimulator.cli.SpikeInOptions;
 import de.charite.compbio.pediasimulator.cmd.ICommand;
 import net.sourceforge.argparse4j.ArgumentParsers;
@@ -28,6 +29,7 @@ public class Main {
 				.help("additional help");
 		BuildSampleDBOptions.setupParser(subparsers);
 		SpikeInOptions.setupParser(subparsers);
+		JsonWithVCFExtenderOptions.setupParser(subparsers);
 
 		// Parse command line arguments
 		Namespace res = null;

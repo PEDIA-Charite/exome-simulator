@@ -3,7 +3,9 @@ package de.charite.compbio.pediasimulator.model;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.OptionalDouble;
 
+import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableMap;
 
 import de.charite.compbio.jannovar.annotation.AnnotationException;
@@ -35,7 +37,7 @@ public class VariantsBuilder {
 	private VariantAnnotator annotator;
 	private VariantNormalizer variantNormalizer;
 
-	public VariantsBuilder(JannovarData jannovarData, ReferenceDictionary refDict,
+	private VariantsBuilder(JannovarData jannovarData, ReferenceDictionary refDict,
 			ImmutableMap<Integer, Chromosome> chromosomeMap, VariantAnnotator annotator,
 			VariantNormalizer variantNormalizer) {
 		this.jannovarData = jannovarData;
@@ -45,7 +47,7 @@ public class VariantsBuilder {
 		this.variantNormalizer = variantNormalizer;
 	}
 
-	public VariantsBuilder() {
+	private VariantsBuilder() {
 	}
 
 	public static final class Builder {
@@ -121,15 +123,33 @@ public class VariantsBuilder {
 						annotatons.getAnnotations()));
 			}
 		} else {
-			List<Object> phred = vc.getCommonInfo().getAttributeAsList("caddPHRED");
-			List<Object> raw = vc.getCommonInfo().getAttributeAsList("caddRawScore");
+			List<Object> phred_snv = vc.getCommonInfo().getAttributeAsList("CADD_SNV_PHRED");
+			List<Object> raw_snv = vc.getCommonInfo().getAttributeAsList("CADD_SNV_RawScore");
+
+			List<Object> phred_indel = vc.getCommonInfo().getAttributeAsList("CADD_INDEL_PHRED");
+			List<Object> raw_indel = vc.getCommonInfo().getAttributeAsList("CADD_INDEL_RawScore");
+			List<Object> raw_indel_ovl = vc.getCommonInfo().getAttributeAsList("CADD_INDEL_OVL_RawScore");
+
 			List<Object> annotation = vc.getCommonInfo().getAttributeAsList("ANN");
 			for (int i = 0; i < vc.getAlternateAlleles().size(); i++) {
 				final String alt = vc.getAlternateAllele(i).getBaseString();
 				Variant variant = new Variant(vc.getContig(), pos, vc.getEnd(), ref, alt);
-				if (!(raw.isEmpty() || raw.get(i).equals("."))) //FIXME what happen with unknown indels?
-					variant.setScore(ScoreType.CADD, Double.parseDouble((String) raw.get(i)));
-				variant.setGene(((String)annotation.get(i)).split("\\|")[3]);
+				if (alt.length() == ref.length()) {
+					variant.setScore(ScoreType.CADD, Double.parseDouble((String) phred_snv.get(i)));
+				} else {
+					OptionalDouble value;
+					if (raw_indel.isEmpty())
+						value = Splitter.on("|").splitToList((String) raw_indel_ovl.get(0)).stream()
+								.mapToDouble(s -> Double.parseDouble(s)).max();
+					else if (((String) raw_indel.get(i)).equals(".")) {
+						value = Splitter.on("|").splitToList((String) raw_indel_ovl.get(0)).stream()
+								.mapToDouble(s -> Double.parseDouble(s)).max();
+					} else
+						value = OptionalDouble.of(Double.parseDouble((String) raw_indel.get(i)));
+					variant.setScore(ScoreType.CADD, value.getAsDouble());
+				}
+
+				variant.setGene(((String) annotation.get(i)).split("\\|")[3]);
 				outputs.add(variant);
 			}
 		}

@@ -19,7 +19,7 @@ public class Sample {
 
 	public Sample(String sampleName) {
 		this.name = sampleName;
-		scoresPerGene = new HashMap<>();
+		this.scoresPerGene = new HashMap<>();
 	}
 
 	public void add(Variant variant) {
@@ -43,5 +43,12 @@ public class Sample {
 			add(variant);
 		}
 	}
+
+	@Override
+	public String toString() {
+		return "Sample [name=" + name + ", scoresPerGene=" + scoresPerGene + "]";
+	}
+	
+	
 
 }
