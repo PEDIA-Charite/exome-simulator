@@ -127,10 +127,11 @@ public class VariantsBuilder {
 						annotatons.getAnnotations()));
 			}
 		} else {
-			List<Object> phred_snv = vc.getCommonInfo().getAttributeAsList("CADD_SNV_PHRED");
+//			List<Object> phred_snv = vc.getCommonInfo().getAttributeAsList("CADD_SNV_PHRED");
 			List<Object> raw_snv = vc.getCommonInfo().getAttributeAsList("CADD_SNV_RawScore");
+			List<Object> raw_snv_ovl = vc.getCommonInfo().getAttributeAsList("CADD_SNV_OVL_RawScore");
 
-			List<Object> phred_indel = vc.getCommonInfo().getAttributeAsList("CADD_INDEL_PHRED");
+//			List<Object> phred_indel = vc.getCommonInfo().getAttributeAsList("CADD_INDEL_PHRED");
 			List<Object> raw_indel = vc.getCommonInfo().getAttributeAsList("CADD_INDEL_RawScore");
 			List<Object> raw_indel_ovl = vc.getCommonInfo().getAttributeAsList("CADD_INDEL_OVL_RawScore");
 
@@ -139,13 +140,18 @@ public class VariantsBuilder {
 				final String alt = vc.getAlternateAllele(i).getBaseString();
 				Variant variant = new Variant(vc.getContig(), pos, vc.getEnd(), ref, alt);
 				if (alt.length() == ref.length()) {
-					variant.setScore(ScoreType.CADD, Double.parseDouble((String) phred_snv.get(i)));
+					variant.setScore(ScoreType.CADD, Double.parseDouble((String) raw_snv.get(i)));
 				} else {
 					OptionalDouble value;
-					if (raw_indel.isEmpty())
-						value = Splitter.on("|").splitToList((String) raw_indel_ovl.get(0)).stream()
+					if (raw_indel.isEmpty()) {
+						// use SNVs if no idel variant is present...
+						if (raw_indel_ovl.isEmpty())
+							value = Splitter.on("|").splitToList((String) raw_snv_ovl.get(0)).stream()
+							.mapToDouble(s -> Double.parseDouble(s)).max();
+						else
+							value = Splitter.on("|").splitToList((String) raw_indel_ovl.get(0)).stream()
 								.mapToDouble(s -> Double.parseDouble(s)).max();
-					else if (((String) raw_indel.get(i)).equals(".")) {
+					} else if (((String) raw_indel.get(i)).equals(".")) {
 						value = Splitter.on("|").splitToList((String) raw_indel_ovl.get(0)).stream()
 								.mapToDouble(s -> Double.parseDouble(s)).max();
 					} else {
