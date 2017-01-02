@@ -12,6 +12,8 @@ import java.util.Set;
 import org.apache.commons.io.IOUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.json.JSONString;
+import org.json.JSONStringer;
 import org.json.JSONTokener;
 
 import com.google.common.base.Joiner;
@@ -138,7 +140,10 @@ public class JsonWithVCFExtenderCommand implements ICommand {
 			}
 
 		}
-		jsonObject.append("cadd_extension:command", command);
+		JSONObject simulationObject =  new JSONObject();
+		simulationObject.put("command", command);
+		simulationObject.put("background_sample", sampleName);
+		jsonObject.append("simulation", simulationObject);
 
 		// 3.4 write new JSON
 		try (FileOutputStream output = new FileOutputStream(options.getOutputFile())) {
