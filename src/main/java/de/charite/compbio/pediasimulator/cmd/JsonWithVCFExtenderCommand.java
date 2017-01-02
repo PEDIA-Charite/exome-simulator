@@ -138,6 +138,7 @@ public class JsonWithVCFExtenderCommand implements ICommand {
 			}
 
 		}
+		jsonObject.append("cadd_extension:command", command);
 
 		// 3.4 write new JSON
 		try (FileOutputStream output = new FileOutputStream(options.getOutputFile())) {
