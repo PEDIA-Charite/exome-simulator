@@ -140,7 +140,11 @@ public class VariantsBuilder {
 				final String alt = vc.getAlternateAllele(i).getBaseString();
 				Variant variant = new Variant(vc.getContig(), pos, vc.getEnd(), ref, alt);
 				if (alt.length() == ref.length()) {
-					variant.setScore(ScoreType.CADD, Double.parseDouble((String) raw_snv.get(i)));
+					if (((String) raw_snv.get(i)).equals("."))
+						variant.setScore(ScoreType.CADD, Double.parseDouble((String) raw_snv.get(i)));
+					else
+						variant.setScore(ScoreType.CADD, Splitter.on("|").splitToList((String) raw_snv_ovl.get(0)).stream()
+								.mapToDouble(s -> Double.parseDouble(s)).max().getAsDouble());
 				} else {
 					OptionalDouble value;
 					if (raw_indel.isEmpty()) {
