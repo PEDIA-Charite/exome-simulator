@@ -97,6 +97,10 @@ public class VariantsBuilder {
 	public List<Variant> get(VariantContext vc) throws InvalidCoordinatesException, AnnotationException {
 
 		List<Variant> outputs = new ArrayList<>();
+		
+		if (vc.isSymbolicOrSV())
+			return outputs;
+		
 		final String ref = vc.getReference().getBaseString();
 		final int pos = vc.getStart();
 		if (jannovarData != null) {
