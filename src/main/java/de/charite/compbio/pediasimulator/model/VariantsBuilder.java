@@ -148,8 +148,10 @@ public class VariantsBuilder {
 					else if (((String) raw_indel.get(i)).equals(".")) {
 						value = Splitter.on("|").splitToList((String) raw_indel_ovl.get(0)).stream()
 								.mapToDouble(s -> Double.parseDouble(s)).max();
-					} else
-						value = OptionalDouble.of(Double.parseDouble((String) raw_indel.get(i)));
+					} else {
+						value = Splitter.on("|").splitToList((String) raw_indel.get(i)).stream()
+								.mapToDouble(s -> Double.parseDouble(s)).max();
+					}
 					variant.setScore(ScoreType.CADD, value.getAsDouble());
 				}
 
