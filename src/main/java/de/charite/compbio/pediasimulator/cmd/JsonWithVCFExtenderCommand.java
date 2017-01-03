@@ -140,10 +140,18 @@ public class JsonWithVCFExtenderCommand implements ICommand {
 			}
 
 		}
-		JSONObject simulationObject =  new JSONObject();
-		simulationObject.put("command", command);
-		simulationObject.put("background_sample", sampleName);
-		jsonObject.append("simulation", simulationObject);
+		
+		JSONArray processing = new JSONArray();
+		if (jsonObject.has("processing")) {
+			processing = (JSONArray) jsonObject.get("processing");
+		} else {
+			jsonObject.append("processing", processing);
+		}
+		
+		
+		
+		processing.put("simulation_command: " + command);
+		processing.put("background_sample: " + sampleName);
 
 		// 3.4 write new JSON
 		try (FileOutputStream output = new FileOutputStream(options.getOutputFile())) {
