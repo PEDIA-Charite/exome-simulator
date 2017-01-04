@@ -119,7 +119,7 @@ public class JsonWithVCFExtenderCommand implements ICommand {
 			String gene = (String) jsonGene.get("gene_symbol");
 			usedGenes.add(gene);
 			if (sample.getScoresPerGene().containsKey(gene)) {
-				OptionalDouble maxScore = sample.getScoresPerGene().get(gene).get(ScoreType.CADD).stream()
+				OptionalDouble maxScore = sample.getScoresPerGene().get(gene).get(ScoreType.CADD_RAW).stream()
 						.mapToDouble(s -> s).max();
 				if (maxScore.isPresent())
 					jsonGene.put("cadd_score", maxScore.getAsDouble());
@@ -130,7 +130,7 @@ public class JsonWithVCFExtenderCommand implements ICommand {
 			if (usedGenes.contains(gene))
 				continue;
 
-			OptionalDouble maxScore = sample.getScoresPerGene().get(gene).get(ScoreType.CADD).stream()
+			OptionalDouble maxScore = sample.getScoresPerGene().get(gene).get(ScoreType.CADD_RAW).stream()
 					.mapToDouble(s -> s).max();
 			if (maxScore.isPresent()) {
 				JSONObject jsonGene = new JSONObject();

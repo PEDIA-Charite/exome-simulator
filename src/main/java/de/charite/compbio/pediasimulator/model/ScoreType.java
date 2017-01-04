@@ -1,7 +1,7 @@
 package de.charite.compbio.pediasimulator.model;
 
 public enum ScoreType {
-	
-	CADD,GESTALT,FEATURE;
+
+	CADD_RAW, CADD_PHRED, GESTALT, FEATURE;
 
 }

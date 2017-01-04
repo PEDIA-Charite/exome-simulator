@@ -97,10 +97,10 @@ public class VariantsBuilder {
 	public List<Variant> get(VariantContext vc) throws InvalidCoordinatesException, AnnotationException {
 
 		List<Variant> outputs = new ArrayList<>();
-		
+
 		if (vc.isSymbolicOrSV())
 			return outputs;
-		
+
 		final String ref = vc.getReference().getBaseString();
 		final int pos = vc.getStart();
 		if (jannovarData != null) {
@@ -127,42 +127,60 @@ public class VariantsBuilder {
 						annotatons.getAnnotations()));
 			}
 		} else {
-//			List<Object> phred_snv = vc.getCommonInfo().getAttributeAsList("CADD_SNV_PHRED");
+			List<Object> phred_snv = vc.getCommonInfo().getAttributeAsList("CADD_SNV_PHRED");
 			List<Object> raw_snv = vc.getCommonInfo().getAttributeAsList("CADD_SNV_RawScore");
 			List<Object> raw_snv_ovl = vc.getCommonInfo().getAttributeAsList("CADD_SNV_OVL_RawScore");
+			List<Object> phred_snv_ovl = vc.getCommonInfo().getAttributeAsList("CADD_SNV_OVL_PHRED");
 
-//			List<Object> phred_indel = vc.getCommonInfo().getAttributeAsList("CADD_INDEL_PHRED");
+			List<Object> phred_indel = vc.getCommonInfo().getAttributeAsList("CADD_INDEL_PHRED");
 			List<Object> raw_indel = vc.getCommonInfo().getAttributeAsList("CADD_INDEL_RawScore");
 			List<Object> raw_indel_ovl = vc.getCommonInfo().getAttributeAsList("CADD_INDEL_OVL_RawScore");
+			List<Object> phred_indel_ovl = vc.getCommonInfo().getAttributeAsList("CADD_INDEL_OVL_PHRED");
 
 			List<Object> annotation = vc.getCommonInfo().getAttributeAsList("ANN");
 			for (int i = 0; i < vc.getAlternateAlleles().size(); i++) {
 				final String alt = vc.getAlternateAllele(i).getBaseString();
 				Variant variant = new Variant(vc.getContig(), pos, vc.getEnd(), ref, alt);
 				if (alt.length() == ref.length()) {
-					if (((String) raw_snv.get(i)).equals(".")) //MSNP are problematic
-						variant.setScore(ScoreType.CADD, Splitter.on("|").splitToList((String) raw_snv_ovl.get(0)).stream()
-								.mapToDouble(s -> Double.parseDouble(s)).max().getAsDouble());
-					else
-						variant.setScore(ScoreType.CADD, Double.parseDouble((String) raw_snv.get(i)));
+					if (((String) raw_snv.get(i)).equals(".")) { // MSNP are problematic
+						variant.setScore(ScoreType.CADD_RAW, Splitter.on("|").splitToList((String) raw_snv_ovl.get(0))
+								.stream().mapToDouble(s -> Double.parseDouble(s)).max().getAsDouble());
+						variant.setScore(ScoreType.CADD_PHRED,
+								Splitter.on("|").splitToList((String) phred_snv_ovl.get(0)).stream()
+										.mapToDouble(s -> Double.parseDouble(s)).max().getAsDouble());
+					} else {
+						variant.setScore(ScoreType.CADD_RAW, Double.parseDouble((String) raw_snv.get(i)));
+						variant.setScore(ScoreType.CADD_PHRED, Double.parseDouble((String) phred_snv.get(i)));
+					}
 				} else {
-					OptionalDouble value;
+					OptionalDouble value_raw;
+					OptionalDouble value_phred;
 					if (raw_indel.isEmpty()) {
-						// use SNVs if no idel variant is present...
-						if (raw_indel_ovl.isEmpty())
-							value = Splitter.on("|").splitToList((String) raw_snv_ovl.get(0)).stream()
-							.mapToDouble(s -> Double.parseDouble(s)).max();
-						else
-							value = Splitter.on("|").splitToList((String) raw_indel_ovl.get(0)).stream()
-								.mapToDouble(s -> Double.parseDouble(s)).max();
+						// use SNVs if no indel variant is present...
+						if (raw_indel_ovl.isEmpty()) {
+							value_raw = Splitter.on("|").splitToList((String) raw_snv_ovl.get(0)).stream()
+									.mapToDouble(s -> Double.parseDouble(s)).max();
+							value_phred = Splitter.on("|").splitToList((String) phred_snv_ovl.get(0)).stream()
+									.mapToDouble(s -> Double.parseDouble(s)).max();
+						} else {
+							value_raw = Splitter.on("|").splitToList((String) raw_indel_ovl.get(0)).stream()
+									.mapToDouble(s -> Double.parseDouble(s)).max();
+							value_phred = Splitter.on("|").splitToList((String) phred_indel_ovl.get(0)).stream()
+									.mapToDouble(s -> Double.parseDouble(s)).max();
+						}
 					} else if (((String) raw_indel.get(i)).equals(".")) {
-						value = Splitter.on("|").splitToList((String) raw_indel_ovl.get(0)).stream()
+						value_raw = Splitter.on("|").splitToList((String) raw_indel_ovl.get(0)).stream()
+								.mapToDouble(s -> Double.parseDouble(s)).max();
+						value_phred = Splitter.on("|").splitToList((String) phred_indel_ovl.get(0)).stream()
 								.mapToDouble(s -> Double.parseDouble(s)).max();
 					} else {
-						value = Splitter.on("|").splitToList((String) raw_indel.get(i)).stream()
+						value_raw = Splitter.on("|").splitToList((String) raw_indel.get(i)).stream()
+								.mapToDouble(s -> Double.parseDouble(s)).max();
+						value_phred = Splitter.on("|").splitToList((String) phred_indel.get(i)).stream()
 								.mapToDouble(s -> Double.parseDouble(s)).max();
 					}
-					variant.setScore(ScoreType.CADD, value.getAsDouble());
+					variant.setScore(ScoreType.CADD_RAW, value_raw.getAsDouble());
+					variant.setScore(ScoreType.CADD_PHRED, value_phred.getAsDouble());
 				}
 
 				variant.setGene(((String) annotation.get(i)).split("\\|")[3]);

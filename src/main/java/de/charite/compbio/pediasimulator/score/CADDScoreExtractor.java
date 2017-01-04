@@ -30,7 +30,7 @@ public class CADDScoreExtractor implements Closeable {
 		try {
 			double score = getCaddScore(variant.getContig(), variant.getStart(), end, variant.getRef(), variant.getAlt(),
 					variant.isIndel());
-			variant.setScore(ScoreType.CADD,score);
+			variant.setScore(ScoreType.CADD_RAW,score);
 		} catch (IOException e) {
 			throw new RuntimeException("Cannot query variant " + variant.toString(), e);
 		}
