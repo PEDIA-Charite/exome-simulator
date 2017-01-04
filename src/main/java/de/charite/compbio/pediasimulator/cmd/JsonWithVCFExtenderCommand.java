@@ -119,10 +119,14 @@ public class JsonWithVCFExtenderCommand implements ICommand {
 			String gene = (String) jsonGene.get("gene_symbol");
 			usedGenes.add(gene);
 			if (sample.getScoresPerGene().containsKey(gene)) {
-				OptionalDouble maxScore = sample.getScoresPerGene().get(gene).get(ScoreType.CADD_RAW).stream()
+				OptionalDouble maxRawScore = sample.getScoresPerGene().get(gene).get(ScoreType.CADD_RAW).stream()
 						.mapToDouble(s -> s).max();
-				if (maxScore.isPresent())
-					jsonGene.put("cadd_score", maxScore.getAsDouble());
+				OptionalDouble maxPhredScore = sample.getScoresPerGene().get(gene).get(ScoreType.CADD_PHRED).stream()
+						.mapToDouble(s -> s).max();
+				if (maxRawScore.isPresent())
+					jsonGene.put("cadd_raw_score", maxRawScore.getAsDouble());
+				if (maxPhredScore.isPresent())
+					jsonGene.put("cadd_phred_score", maxPhredScore.getAsDouble());
 			}
 		}
 		// 3.3 add new
@@ -130,11 +134,14 @@ public class JsonWithVCFExtenderCommand implements ICommand {
 			if (usedGenes.contains(gene))
 				continue;
 
-			OptionalDouble maxScore = sample.getScoresPerGene().get(gene).get(ScoreType.CADD_RAW).stream()
+			OptionalDouble maxRawScore = sample.getScoresPerGene().get(gene).get(ScoreType.CADD_RAW).stream()
 					.mapToDouble(s -> s).max();
-			if (maxScore.isPresent()) {
+			OptionalDouble maxPhredScore = sample.getScoresPerGene().get(gene).get(ScoreType.CADD_PHRED).stream()
+					.mapToDouble(s -> s).max();
+			if (maxRawScore.isPresent()) {
 				JSONObject jsonGene = new JSONObject();
-				jsonGene.put("cadd_score", maxScore.getAsDouble());
+				jsonGene.put("cadd_raw_score", maxRawScore.getAsDouble());
+				jsonGene.put("cadd_phred_score", maxPhredScore.getAsDouble());
 				jsonGene.put("gene_symbol", gene);
 				jsonGenes.put(jsonGene);
 			}
