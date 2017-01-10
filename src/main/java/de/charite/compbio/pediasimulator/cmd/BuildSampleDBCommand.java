@@ -31,8 +31,8 @@ public class BuildSampleDBCommand implements ICommand {
 	/** Configuration */
 	private BuildSampleDBOptions options;
 	private VariantsBuilder variantsBuilder;
-//	private CADDScoreExtractor caddScoreExtractor;
-//	private AnnotationFilter annotationFilter;
+	// private CADDScoreExtractor caddScoreExtractor;
+	// private AnnotationFilter annotationFilter;
 
 	private List<Sample> samples = new ArrayList<>();
 
@@ -72,22 +72,20 @@ public class BuildSampleDBCommand implements ICommand {
 		// 1. Config parsers
 		// 1.1 Init 1000G VCF file
 		VCFFileReader reader = new VCFFileReader(options.getVcfInputFile());
-		
+
 		// 1.6 load gene files from omim used for filtering
 		OMIMGeneLoader omimGeneLoader = new OMIMGeneLoader(options.getOMIMFile());
 		ImmutableSet<String> genes = omimGeneLoader.load();
-		
+
 		// 1.2 init filter
 		ImmutableSet<IFilter> filters = new ImmutableSet.Builder<IFilter>()
 				.add(new LessOrEqualInfoFieldFilter("EXAC_BEST_AF", 0.01))
-				.add(new LessOrEqualInfoFieldFilter("UK10K_AF", 0.01))
-				.add(new LessOrEqualInfoFieldFilter("AF", 0.01)).add(new LessOrEqualInfoFieldFilter("AFR_AF", 0.01))
-				.add(new LessOrEqualInfoFieldFilter("AMR_AF", 0.01)).add(new LessOrEqualInfoFieldFilter("EAS_AF", 0.01))
-				.add(new LessOrEqualInfoFieldFilter("EUR_AF", 0.01)).add(new LessOrEqualInfoFieldFilter("SAS_AF", 0.01))
+				.add(new LessOrEqualInfoFieldFilter("UK10K_AF", 0.01)).add(new LessOrEqualInfoFieldFilter("AF", 0.01))
+				.add(new LessOrEqualInfoFieldFilter("AFR_AF", 0.01)).add(new LessOrEqualInfoFieldFilter("AMR_AF", 0.01))
+				.add(new LessOrEqualInfoFieldFilter("EAS_AF", 0.01)).add(new LessOrEqualInfoFieldFilter("EUR_AF", 0.01))
 				.add(new LessOrEqualInfoFieldFilter("SAS_AF", 0.01))
 				.add(new JannovarEffectInfoFilter(VariantEffect._SMALLEST_MODERATE_IMPACT))
-				.add(new JannovarGeneInfoFilter(genes))
-				.build();
+				.add(new JannovarGeneInfoFilter(genes)).build();
 		// 1.3 initial sampler
 		VCFSampler.Builder builder = new VCFSampler.Builder().vcfReader(reader).seed(42).filters(filters);
 
@@ -95,14 +93,13 @@ public class BuildSampleDBCommand implements ICommand {
 		this.variantsBuilder = new VariantsBuilder.Builder().build();
 
 		// 1.5 CADD score extractor
-//		this.caddScoreExtractor = new CADDScoreExtractor.Builder().indels(options.getCADDIndel())
-//				.snvs(options.getCADDSNV()).build();
-
-
+		// this.caddScoreExtractor = new CADDScoreExtractor.Builder().indels(options.getCADDIndel())
+		// .snvs(options.getCADDSNV()).build();
 
 		// 1.7 variants filter of effect
-//		this.annotationFilter = new AnnotationFilter.Builder().lessOrEqualThan(VariantEffect._SMALLEST_MODERATE_IMPACT)
-//				.genes(genes).build();
+		// this.annotationFilter = new
+		// AnnotationFilter.Builder().lessOrEqualThan(VariantEffect._SMALLEST_MODERATE_IMPACT)
+		// .genes(genes).build();
 
 		// 2 Get the samples to iterate
 		List<String> samples = reader.getFileHeader().getSampleNamesInOrder();
@@ -119,7 +116,7 @@ public class BuildSampleDBCommand implements ICommand {
 			// 3.2 iterate over variants
 			while (sampler.hasNext()) {
 				VariantContext vc = sampler.next();
-				if (vc.isSymbolic()) //skip symbolic variants
+				if (vc.isSymbolic()) // skip symbolic variants
 					continue;
 
 				List<Variant> variants;

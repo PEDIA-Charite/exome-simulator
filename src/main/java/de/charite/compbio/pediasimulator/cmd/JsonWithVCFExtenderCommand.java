@@ -12,8 +12,6 @@ import java.util.Set;
 import org.apache.commons.io.IOUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.json.JSONString;
-import org.json.JSONStringer;
 import org.json.JSONTokener;
 
 import com.google.common.base.Joiner;
@@ -72,7 +70,7 @@ public class JsonWithVCFExtenderCommand implements ICommand {
 				.add(new LessOrEqualInfoFieldFilter("UK10K_AF", 0.01)).add(new LessOrEqualInfoFieldFilter("AF", 0.01))
 				.add(new LessOrEqualInfoFieldFilter("AFR_AF", 0.01)).add(new LessOrEqualInfoFieldFilter("AMR_AF", 0.01))
 				.add(new LessOrEqualInfoFieldFilter("EAS_AF", 0.01)).add(new LessOrEqualInfoFieldFilter("EUR_AF", 0.01))
-				.add(new LessOrEqualInfoFieldFilter("SAS_AF", 0.01)).add(new LessOrEqualInfoFieldFilter("SAS_AF", 0.01))
+				.add(new LessOrEqualInfoFieldFilter("SAS_AF", 0.01))
 				.add(new JannovarEffectInfoFilter(VariantEffect._SMALLEST_MODERATE_IMPACT))
 				.add(new JannovarGeneInfoFilter(genes)).build();
 
@@ -99,6 +97,8 @@ public class JsonWithVCFExtenderCommand implements ICommand {
 
 			sample.addAll(variants);
 		}
+		
+		System.out.println("Sample " + sampleName + " has " + sample.getScoresPerGene().size() + " genes");
 
 		// 3 JSON
 		// 3.1 read JSON
@@ -147,16 +147,14 @@ public class JsonWithVCFExtenderCommand implements ICommand {
 			}
 
 		}
-		
+
 		JSONArray processing = new JSONArray();
 		if (jsonObject.has("processing")) {
 			processing = (JSONArray) jsonObject.get("processing");
 		} else {
 			jsonObject.append("processing", processing);
 		}
-		
-		
-		
+
 		processing.put("simulation_command: " + command);
 		processing.put("background_sample: " + sampleName);
 
