@@ -25,6 +25,7 @@ import de.charite.compbio.pediasimulator.cli.JsonWithVCFExtenderOptions;
 import de.charite.compbio.pediasimulator.filter.JannovarEffectInfoFilter;
 import de.charite.compbio.pediasimulator.filter.JannovarGeneInfoFilter;
 import de.charite.compbio.pediasimulator.io.OMIMGeneLoader;
+import de.charite.compbio.pediasimulator.model.Gene;
 import de.charite.compbio.pediasimulator.model.Sample;
 import de.charite.compbio.pediasimulator.model.ScoreType;
 import de.charite.compbio.pediasimulator.model.Variant;
@@ -97,7 +98,7 @@ public class JsonWithVCFExtenderCommand implements ICommand {
 
 			sample.addAll(variants);
 		}
-		
+
 		System.out.println("Sample " + sampleName + " has " + sample.getScoresPerGene().size() + " genes");
 
 		// 3 JSON
@@ -112,11 +113,11 @@ public class JsonWithVCFExtenderCommand implements ICommand {
 		}
 
 		// 3.2 update existing json
-		Set<String> usedGenes = new HashSet<>();
+		Set<Gene> usedGenes = new HashSet<>();
 		JSONArray jsonGenes = (JSONArray) jsonObject.get("geneList");
 		for (Object object : jsonGenes) {
 			JSONObject jsonGene = (JSONObject) object;
-			String gene = (String) jsonGene.get("gene_symbol");
+			Gene gene = new Gene((String) jsonGene.get("gene_symbol"), (Integer) jsonGene.get("entrez_id"));
 			usedGenes.add(gene);
 			if (sample.getScoresPerGene().containsKey(gene)) {
 				OptionalDouble maxRawScore = sample.getScoresPerGene().get(gene).get(ScoreType.CADD_RAW).stream()
@@ -130,7 +131,7 @@ public class JsonWithVCFExtenderCommand implements ICommand {
 			}
 		}
 		// 3.3 add new
-		for (String gene : sample.getScoresPerGene().keySet()) {
+		for (Gene gene : sample.getScoresPerGene().keySet()) {
 			if (usedGenes.contains(gene))
 				continue;
 
@@ -142,7 +143,8 @@ public class JsonWithVCFExtenderCommand implements ICommand {
 				JSONObject jsonGene = new JSONObject();
 				jsonGene.put("cadd_raw_score", maxRawScore.getAsDouble());
 				jsonGene.put("cadd_phred_score", maxPhredScore.getAsDouble());
-				jsonGene.put("gene_symbol", gene);
+				jsonGene.put("gene_symbol", gene.getName());
+				jsonGene.put("entrez_id", gene.getEntrezGeneID());
 				jsonGenes.put(jsonGene);
 			}
 

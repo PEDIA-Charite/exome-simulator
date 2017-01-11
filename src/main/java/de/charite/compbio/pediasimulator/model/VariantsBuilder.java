@@ -183,7 +183,8 @@ public class VariantsBuilder {
 					variant.setScore(ScoreType.CADD_PHRED, value_phred.getAsDouble());
 				}
 
-				variant.setGene(((String) annotation.get(i)).split("\\|")[3]);
+				variant.setGene(new Gene(((String) annotation.get(i)).split("\\|")[3],
+						Integer.parseInt(((String) annotation.get(i)).split("\\|")[4])));
 				outputs.add(variant);
 			}
 		}

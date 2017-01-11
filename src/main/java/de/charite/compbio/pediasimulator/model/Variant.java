@@ -22,7 +22,7 @@ public class Variant {
 	private ImmutableList<Annotation> annotations;
 
 	private Map<ScoreType, Double> scores;
-	private Set<String> genes;
+	private Set<Gene> genes;
 
 	public Variant(String contig, int start, int end, String ref, String alt, ImmutableList<Annotation> annotations) {
 		this.contig = contig;
@@ -92,13 +92,13 @@ public class Variant {
 		return contig + ":" + start + "-" + end + ref.getBaseString() + ">" + alt.getBaseString();
 	}
 	
-	public Set<String> getGenes() {
+	public Set<Gene> getGenes() {
 		if (genes == null)
 			genes = new HashSet<>();
 		return genes;
 	}
 
-	public void setGene(String gene) {
+	public void setGene(Gene gene) {
 		getGenes().add(gene);
 		
 	}

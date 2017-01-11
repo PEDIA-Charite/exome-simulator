@@ -7,12 +7,22 @@ Simulate exomes using simulated exomes with spike-in pathogenic mutations
 
 ## Requirements
 
-pedia-simulator requires java 8 and higher. [SIMdrome](https://github.com/visze/simdrom) has to be cloned and installed via [Maven](https://maven.apache.org/) as well as the development branch of [jannovar](https://github.com/charite/jannovar/tree/develop)
+pedia-simulator requires java 8 and higher. The development branch of [SIMdrome](https://github.com/visze/simdrom/tree/develop) has to be cloned and installed via [Maven](https://maven.apache.org/).
+
+### SIMdrom
+
+```
+git clone https://github.com/visze/simdrom.git
+cd simdrom
+git checkout development
+mvn install
+```
 
 ## Installation from Gitlab sources
 
 1. Clone this repository.
-2. Compile the java classes using [Maven](https://maven.apache.org/)
+2. Checkout development
+3. Compile the java classes using [Maven](https://maven.apache.org/)
 
 ### Clone this repository
 
@@ -28,7 +38,7 @@ Go to your repository and create a jar file of pedia-simulator using Maven.
 
 ```
 cd pedia-simulator
-
+git checkout development
 mvn clean install package
 ```
 
@@ -42,9 +52,9 @@ This option will use a background VCF (e.g. 1000 Genomes sample) and a mutation 
 
 The number of samples in the mutations VCF are the number of resulting VCF-Files. The output files have the name MUTATION-SAMPLE-NAME_BACKGROUND-SAMPLE-NAME.vcf.gz and both names are included into the header of the VCF.
 
-Please use the seed to generate reproducible results. Otherwise the radom selection of a background sample will be different for each new run of the program!
+Please use the seed to generate reproducible results. Otherwise the random selection of a background sample will be different for each new run of the program!
 
-Important! The background VCF must be annotated with Jannovar (>= v0.18).
+Important! The background VCF must be annotated with Jannovar v0.20.
 
 Example:
 
@@ -63,4 +73,4 @@ Run `java -jar pedia-simulator-0.0.1-SNAPSHOT.jar spike-in -h` to see the help.
 
 ### Build reference samples
 
-### Creat simulated JSON files
+## Create simulated JSON files

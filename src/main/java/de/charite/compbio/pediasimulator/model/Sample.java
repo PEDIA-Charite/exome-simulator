@@ -15,7 +15,7 @@ public class Sample {
 
 	private String name;
 
-	Map<String, ListMultimap<ScoreType, Double>> scoresPerGene;
+	Map<Gene, ListMultimap<ScoreType, Double>> scoresPerGene;
 
 	public Sample(String sampleName) {
 		this.name = sampleName;
@@ -23,9 +23,9 @@ public class Sample {
 	}
 
 	public void add(Variant variant) {
-		Set<String> genes = new HashSet<>();
+		Set<Gene> genes = new HashSet<>();
 		genes.addAll(variant.getGenes());
-		for (String gene : genes) {
+		for (Gene gene : genes) {
 			if (!scoresPerGene.containsKey(gene))
 				scoresPerGene.put(gene, ArrayListMultimap.create());
 			for (ScoreType type : variant.getScores().keySet())
@@ -34,7 +34,7 @@ public class Sample {
 
 	}
 
-	public Map<String, ListMultimap<ScoreType, Double>> getScoresPerGene() {
+	public Map<Gene, ListMultimap<ScoreType, Double>> getScoresPerGene() {
 		return scoresPerGene;
 	}
 
