@@ -10,6 +10,7 @@ import de.charite.compbio.pediasimulator.cli.CommandLineParsingException;
 import de.charite.compbio.pediasimulator.cli.SpikeInOptions;
 import de.charite.compbio.pediasimulator.filter.JannovarGeneInfoFilter;
 import de.charite.compbio.pediasimulator.io.OMIMGeneLoader;
+import de.charite.compbio.pediasimulator.model.Gene;
 import de.charite.compbio.simdrom.filter.IFilter;
 import de.charite.compbio.simdrom.sampler.SpikeIn;
 import de.charite.compbio.simdrom.sampler.vcf.VCFSampler;
@@ -55,7 +56,7 @@ public class SpikeInCommand implements ICommand {
 
 		// 1.2 load gene files from omim used for filtering
 		OMIMGeneLoader omimGeneLoader = new OMIMGeneLoader(options.getOMIMFile());
-		ImmutableSet<String> genes = omimGeneLoader.load();
+		ImmutableSet<Gene> genes = omimGeneLoader.load();
 
 		// 1.3 init filter
 		ImmutableSet<IFilter> filters = new ImmutableSet.Builder<IFilter>().add(new JannovarGeneInfoFilter(genes))

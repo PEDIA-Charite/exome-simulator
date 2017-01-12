@@ -16,6 +16,7 @@ import de.charite.compbio.pediasimulator.cli.CommandLineParsingException;
 import de.charite.compbio.pediasimulator.filter.JannovarEffectInfoFilter;
 import de.charite.compbio.pediasimulator.filter.JannovarGeneInfoFilter;
 import de.charite.compbio.pediasimulator.io.OMIMGeneLoader;
+import de.charite.compbio.pediasimulator.model.Gene;
 import de.charite.compbio.pediasimulator.model.Sample;
 import de.charite.compbio.pediasimulator.model.Variant;
 import de.charite.compbio.pediasimulator.model.VariantsBuilder;
@@ -75,7 +76,7 @@ public class BuildSampleDBCommand implements ICommand {
 
 		// 1.6 load gene files from omim used for filtering
 		OMIMGeneLoader omimGeneLoader = new OMIMGeneLoader(options.getOMIMFile());
-		ImmutableSet<String> genes = omimGeneLoader.load();
+		ImmutableSet<Gene> genes = omimGeneLoader.load();
 
 		// 1.2 init filter
 		ImmutableSet<IFilter> filters = new ImmutableSet.Builder<IFilter>()

@@ -63,7 +63,7 @@ public class JsonWithVCFExtenderCommand implements ICommand {
 
 		// 1.2 load gene files from omim used for filtering
 		OMIMGeneLoader omimGeneLoader = new OMIMGeneLoader(options.getOMIMFile());
-		ImmutableSet<String> genes = omimGeneLoader.load();
+		ImmutableSet<Gene> genes = omimGeneLoader.load();
 
 		// 1.3 init filter
 		ImmutableSet<IFilter> filters = new ImmutableSet.Builder<IFilter>()
