@@ -18,8 +18,11 @@ public class JannovarGeneInfoFilter extends AInfoFieldFilter {
 		if (annotations.equals("."))
 			return false;
 		String[] annotation = annotations.split("\\|");
+		if (annotation.length > 15 && annotation[15].equals("ERROR_PROBLEM_DURING_ANNOTATION"))
+			return false;
 		Gene gene = new Gene(annotation[3], Integer.parseInt(annotation[4]));
-		
+		if (annotation[4].isEmpty())
+			System.out.println(annotations);
 
 		// FIXME what about empty genes: !annotation[3].isEmpty() &&
 		return genes.contains(gene);
