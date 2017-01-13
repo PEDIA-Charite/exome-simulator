@@ -28,15 +28,16 @@ variables:
 cache:
   paths:
     - /root/.m2/repository/
-    - /builds/visze/simdrom/
+    - /builds/simdrom/
 
 build:pedia-simulator:
   stage: build
   script:
-   - 'git clone https://github.com/visze/simdrom.git /builds/visze/simdrom'
-   - 'cd /builds/visze/simdrom'
+   - 'path=`pwd`' 
+   - 'git clone https://github.com/visze/simdrom.git /builds/simdrom'
+   - 'cd /builds/simdrom'
    - 'git checkout development'
    - 'mvn $MAVEN_CLI_OPTS install'
-   - 'cd /builds/visze/pedia-simulator'
+   - 'cd $path'
    - 'mvn $MAVEN_CLI_OPTS test package'
   image: maven:3.3.9-jdk-8
