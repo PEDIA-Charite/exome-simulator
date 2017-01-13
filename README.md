@@ -90,7 +90,7 @@ java -jar jannovar-cli-0.21-SNAPSHOT.jar annotate-vcf \
 	--tabix whole_genome_SNVs.tsv.gz InDels.tsv.gz --tabix-prefix CADD_SNV_ CADD_INDEL_ \
 	--ref-fasta human_g1k_v37.fasta \
 	-i sample.vcf.gz -o sample_annotated.vcf.gz
-		```
+	```
 
 The new annotated file `sample_annotated.vcf.gz` than can be used for the spike-in with an additional annotated 1kG background VCF (see "Build reference samples" how to generate that).
 
