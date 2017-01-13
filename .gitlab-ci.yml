@@ -28,6 +28,16 @@ variables:
 cache:
   paths:
     - /root/.m2/repository/
+    - /root/simdrom/
+
+simdrom:
+  stage: build
+  script:
+    - 'git clone https://github.com/visze/simdrom.git /root/simdrom'
+    - 'cd /root/simdrom'
+    - 'git checkout development'
+    - 'mvn $MAVEN_CLI_OPTS install'
+  image: maven:3.3.9-jdk-8
 
 # This will only validate and compile stuff and run e.g. maven-enforcer-plugin. 
 # Because some enforcer rules might check dependency convergence and class duplications
@@ -46,20 +56,10 @@ cache:
   except:
     - master
 
-# Validate merge requests using JDK7
-validate:jdk7:
-  <<: *validate
-  image: maven:3.3.9-jdk-7
-
 # Validate merge requests using JDK8
 validate:jdk8:
   <<: *validate
   image: maven:3.3.9-jdk-8
-
-# Verify merge requests using JDK7
-verify:jdk7:
-  <<: *verify
-  image: maven:3.3.9-jdk-7
 
 # Verify merge requests using JDK8
 verify:jdk8:
