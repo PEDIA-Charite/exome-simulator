@@ -30,13 +30,13 @@ cache:
     - /root/.m2/repository/
     - /builds/visze/simdrom/
 
-build:oedia-simulator:
+build:pedia-simulator:
   stage: build
   script:
    - 'git clone https://github.com/visze/simdrom.git /builds/visze/simdrom'
    - 'cd /builds/visze/simdrom'
    - 'git checkout development'
-   - 'mvn install'
+   - 'mvn $MAVEN_CLI_OPTS install'
    - 'cd /builds/visze/pedia-simulator'
-   - 'mvn test package'
+   - 'mvn $MAVEN_CLI_OPTS test package'
   image: maven:3.3.9-jdk-8
