@@ -28,15 +28,15 @@ variables:
 cache:
   paths:
     - /root/.m2/repository/
-    - /build/simdrom/
+    - /builds/simdrom/
 
 build:simdrom:
   stage: build
   script:
    - 'cd ~/'
    - 'pwd'
-   - 'git clone https://github.com/visze/simdrom.git /root/simdrom'
-   - 'cd /root/simdrom'
+   - 'git clone https://github.com/visze/simdrom.git /builds/simdrom'
+   - 'cd /builds/simdrom'
    - 'git checkout development'
    - 'mvn install'
   image: maven:3.3.9-jdk-8
@@ -51,8 +51,6 @@ test:pedia-simulator:
   script:
     - 'ls -l ~/.m2/repository/*'
     - 'mvn test'
-  image: maven:3.3.9-jdk-8
-
 
 deploy:pedia-simulator:
   stage: deploy
@@ -61,4 +59,3 @@ deploy:pedia-simulator:
     - test:pedia-simulator
   script:
     - 'mvn package'
-  image: maven:3.3.9-jdk-8
