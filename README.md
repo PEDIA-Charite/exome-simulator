@@ -90,7 +90,7 @@ java -jar jannovar-cli-0.21-SNAPSHOT.jar annotate-vcf \
 	--tabix whole_genome_SNVs.tsv.gz InDels.tsv.gz --tabix-prefix CADD_SNV_ CADD_INDEL_ \
 	--ref-fasta human_g1k_v37.fasta \
 	-i sample.vcf.gz -o sample_annotated.vcf.gz
-	```
+```
 
 The new annotated file `sample_annotated.vcf.gz` than can be used for the spike-in with an additional annotated 1kG background VCF (see "Build reference samples" how to generate that).
 
@@ -110,9 +110,9 @@ Example:
 
 ```
 java -jar pedia-simulator-0.0.1-SNAPSHOT.jar spike-in \
--m mutations.vcf.gz -v background.vcf.gz \
--o omim_genemap2.txt \
--out outdir
+	-m mutations.vcf.gz -v background.vcf.gz \
+	-o omim_genemap2.txt \
+	-out outdir
 ```
 
 If you want to generate files only for a subset of samples you can use the `--sample` option to define one ore more samples of the mutation VCF. 
