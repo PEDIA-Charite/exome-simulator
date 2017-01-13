@@ -43,6 +43,11 @@ cache:
    - 'git checkout development'
    - 'mvn $MAVEN_CLI_OPTS install'
   script:
+    - 'git clone https://github.com/visze/simdrom.git /root/simdrom'
+    - 'cd /root/simdrom'
+    - 'git checkout development'
+    - 'mvn $MAVEN_CLI_OPTS install'
+    - 'cd'
     - 'mvn $MAVEN_CLI_OPTS test-compile'
 
 # For merge requests do not `deploy` but only run `verify`.
