@@ -126,7 +126,72 @@ Run `java -jar pedia-simulator-0.0.1-SNAPSHOT.jar spike-in -h` to see the help.
 
 This part is how you generate a multiVCF file only on the refseq coding regions with the 1KG data downloaded from ftp://ftp-trace.ncbi.nih.gov/1000genomes/ftp/release/20130502/
 
-TODO
+First we have to get the RefSeq database and generate a bed-file for filtering (+ indexing).
+
+```
+mkdir refseq
+curl ftp://ftp.ncbi.nlm.nih.gov/refseq/H_sapiens/H_sapiens/ARCHIVE/ANNOTATION_RELEASE.105/g'FF/ref_GRCh37.p13_top_level.gff3.gz \
+	> refseq/ref_GRCh37.p13_top_level.gff3.gz
+
+zcat refseq/ref_GRCh37.p13_top_level.gff3.gz | \
+	grep '^NC' | grep '\sexon\s' | awk -F \"\\t\" -v OFS=\"\\t\" '{{print $1,$4-1,$5,$3,$6,$7}}' | \
+	sed 's/NC_000001.10/1/g' | \
+	sed 's/NC_000002.11/2/g' | \
+	sed 's/NC_000003.11/3/g' | \
+	sed 's/NC_000004.11/4/g' | \
+	sed 's/NC_000005.9/5/g' | \
+	sed 's/NC_000006.11/6/g' | \
+	sed 's/NC_000007.13/7/g' | \
+	sed 's/NC_000008.10/8/g' | \
+	sed 's/NC_000011.9/9/g' | \
+	sed 's/NC_000010.10/10/g' | \
+	sed 's/NC_000009.11/11/g' | \
+	sed 's/NC_000012.11/12/g' | \
+	sed 's/NC_000013.10/13/g' | \
+	sed 's/NC_000014.8/14/g' | \
+	sed 's/NC_000015.9/15/g' | \
+	sed 's/NC_000016.9/16/g' | \
+	sed 's/NC_000017.10/17/g' | \
+	sed 's/NC_000018.9/18/g' | \
+	sed 's/NC_000019.9/19/g' | \
+	sed 's/NC_000020.10/20/g' | \
+	sed 's/NC_000021.8/21/g' | \
+	sed 's/NC_000022.10/22/g' | \
+	sed 's/NC_000023.10/X/g' | \
+	sed 's/NC_000024.9/Y/g' | \
+	sed 's/NC_012920.1/MT/g' | \
+	sort -k 1,1 -k 2,2n | bedtools merge -i - | bgzip -c \
+	> refseq/ref_GRCh37.p13_top_level.bed.gz
+
+tabix refseq/ref_GRCh37.p13_top_level.bed.gz
+```
+Then we need to filter the vcfs of 1KG still separated by their chromosomes.
+This will be different for autosomes and gonosomes. For gonosomes you need an extra ruby script that is present in the scripts-folder of the pedia-simulator
+
+```
+mkdir 1KG
+refseq=refseq/ref_GRCh37.p13_top_level.bed.gz
+# Autosomes:
+bedtools intersect -header -a {input.vcf} -b $refseq 2>/dev/null | \
+	bgzip -c > 1KG/1KG_{chr}.refSeq105.vcf.gz
+# Gonosomes:
+bedtools intersect -header -a ALL.chrX.phase3_shapeit2_mvncall_integrated_v1b.20130502.genotypes.vcf.gz -b $refseq 2>/dev/null | \
+	bgzip -c > 1KG/1KG_chrX.refSeq105.vcf.gz
+bedtools intersect -header -a ALL.chrY.phase3_integrated_v2a.20130502.genotypes.vcf.gz -b $refseq 2>/dev/null | \
+	ruby scripts/modify_Y+MT/addZeroIfSampleNotPresent.rb scripts/modify_Y+MT/samples.txt | \
+	bgzip -c > 1KG/1KG_chrY.refSeq105.vcf.gz
+bedtools intersect -header -a ALL.chrMT.phase3_callmom.20130502.genotypes.vcf.gz -b $refseq 2>/dev/null | \
+		ruby scripts/modify_Y+MT/addZeroIfSampleNotPresent.rb scripts/modify_Y+MT/samples.txt | \
+		bgzip -c > 1KG/1KG_chrMT.refSeq105.vcf.gz
+``` 
+
+Then we have to index every vcf new VCF file `tabix 1KG/1KG_chr*.refSeq105.vcf.gz` and finally concat them together:
+
+```
+bcftools concat 1KG/1KG_chr*.refSeq105.vcf.gz | \
+	bgzip -c > 1KG.refSeq105.vcf.gz
+tabix 1KG.refSeq105.vcf.gz
+```
 
 ### Append JSON with simulated variants
 
