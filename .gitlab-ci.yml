@@ -28,15 +28,19 @@ variables:
 cache:
   paths:
     - /root/.m2/repository/
-    - /root/simdrom/
+    - /build/simdrom/
 
 build:simdrom:
   stage: build
   script:
+   - 'cd ~/'
+   - 'pwd'
    - 'git clone https://github.com/visze/simdrom.git /root/simdrom'
    - 'cd /root/simdrom'
    - 'git checkout development'
    - 'mvn $MAVEN_CLI_OPTS install'
+   - 'cd ~/.m2/repository/'
+   - 'pwd'
   image: maven:3.3.9-jdk-8
 
 # This will only validate and compile stuff and run e.g. maven-enforcer-plugin. 
