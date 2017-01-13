@@ -28,34 +28,15 @@ variables:
 cache:
   paths:
     - /root/.m2/repository/
-    - /builds/simdrom/
+    - /builds/visze/simdrom/
 
-build:simdrom:
+build:oedia-simulator:
   stage: build
   script:
-   - 'cd ~/'
-   - 'pwd'
-   - 'git clone https://github.com/visze/simdrom.git /builds/simdrom'
-   - 'cd /builds/simdrom'
+   - 'git clone https://github.com/visze/simdrom.git /builds/visze/simdrom'
+   - 'cd /builds/visze/simdrom'
    - 'git checkout development'
    - 'mvn install'
+   - 'cd /builds/visze/pedia-simulator'
+   - 'mvn test package'
   image: maven:3.3.9-jdk-8
-
-# This will only validate and compile stuff and run e.g. maven-enforcer-plugin. 
-# Because some enforcer rules might check dependency convergence and class duplications
-# we use `test-compile` here instead of `validate`, so the correct classpath is picked up.
-test:pedia-simulator:
-  stage: test
-  dependencies:
-    - build:simdrom
-  script:
-    - 'ls -l ~/.m2/repository/*'
-    - 'mvn test'
-
-deploy:pedia-simulator:
-  stage: deploy
-  dependencies:
-    - build:simdrom
-    - test:pedia-simulator
-  script:
-    - 'mvn package'
