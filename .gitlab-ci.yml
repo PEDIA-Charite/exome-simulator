@@ -38,9 +38,7 @@ build:simdrom:
    - 'git clone https://github.com/visze/simdrom.git /root/simdrom'
    - 'cd /root/simdrom'
    - 'git checkout development'
-   - 'mvn $MAVEN_CLI_OPTS install'
-   - 'cd ~/.m2/repository/'
-   - 'pwd'
+   - 'mvn install'
   image: maven:3.3.9-jdk-8
 
 # This will only validate and compile stuff and run e.g. maven-enforcer-plugin. 
@@ -51,5 +49,16 @@ test:pedia-simulator:
   dependencies:
     - build:simdrom
   script:
-    - 'mvn $MAVEN_CLI_OPTS test-compile'
+    - 'ls -l ~/.m2/repository/*'
+    - 'mvn test'
+  image: maven:3.3.9-jdk-8
+
+
+deploy:pedia-simulator:
+  stage: deploy
+  dependencies:
+    - build:simdrom
+    - test:pedia-simulator
+  script:
+    - 'mvn package'
   image: maven:3.3.9-jdk-8
