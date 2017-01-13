@@ -30,77 +30,22 @@ cache:
     - /root/.m2/repository/
     - /root/simdrom/
 
-
-# This will only validate and compile stuff and run e.g. maven-enforcer-plugin. 
-# Because some enforcer rules might check dependency convergence and class duplications
-# we use `test-compile` here instead of `validate`, so the correct classpath is picked up.
-.validate: &validate
+build:simdrom:
   stage: build
-  before_script:
-   - 'pwd'
+  script:
    - 'git clone https://github.com/visze/simdrom.git /root/simdrom'
    - 'cd /root/simdrom'
    - 'git checkout development'
    - 'mvn $MAVEN_CLI_OPTS install'
-  script:
-    - 'git clone https://github.com/visze/simdrom.git /root/simdrom'
-    - 'cd /root/simdrom'
-    - 'git checkout development'
-    - 'mvn $MAVEN_CLI_OPTS install'
-    - 'cd'
-    - 'mvn $MAVEN_CLI_OPTS test-compile'
+  image: maven:3.3.9-jdk-8
 
-# For merge requests do not `deploy` but only run `verify`.
-# See https://maven.apache.org/guides/introduction/introduction-to-the-lifecycle.html
-.verify: &verify
+# This will only validate and compile stuff and run e.g. maven-enforcer-plugin. 
+# Because some enforcer rules might check dependency convergence and class duplications
+# we use `test-compile` here instead of `validate`, so the correct classpath is picked up.
+test:pedia-simulator:
   stage: test
-  script:
-    - 'mvn $MAVEN_CLI_OPTS verify site site:stage'
-  except:
-    - master
-
-# Validate merge requests using JDK8
-validate:jdk8:
-  <<: *validate
-  image: maven:3.3.9-jdk-8
-
-# Verify merge requests using JDK8
-verify:jdk8:
-  <<: *verify
-  image: maven:3.3.9-jdk-8
-
-
-# For `master` branch run `mvn deploy` automatically.
-# Here you need to decide whether you want to use JDK7 or 8.
-# To get this working you need to define a volume while configuring your gitlab-ci-multi-runner.
-# Mount your `settings.xml` as `/root/.m2/settings.xml` which holds your secrets.
-# See https://maven.apache.org/settings.html
-deploy:jdk8:
-  # Use stage test here, so the pages job may later pickup the created site.
-  stage: test
-  script:
-    - 'mvn $MAVEN_CLI_OPTS deploy site site:stage'
-  only:
-    - master
-  # Archive up the built documentation site.
-  artifacts:
-    paths:
-    - target/staging
-  image: maven:3.3.9-jdk-8
-
-
-pages:
-  image: busybox:latest
-  stage: deploy
-  script:
-    # Because Maven appends the artifactId automatically to the staging path if you did define a parent pom,
-    # you might need to use `mv target/staging/YOUR_ARTIFACT_ID public` instead.
-    - mv target/staging public
   dependencies:
-    - deploy:jdk8
-  artifacts:
-    paths:
-    - public
-  only:
-    - master
-
+    - build:simdrom
+  script:
+    - 'mvn $MAVEN_CLI_OPTS test-compile'
+  image: maven:3.3.9-jdk-8
