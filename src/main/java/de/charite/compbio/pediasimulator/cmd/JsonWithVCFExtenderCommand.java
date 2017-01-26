@@ -8,6 +8,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.OptionalDouble;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.commons.io.IOUtils;
 import org.json.JSONArray;
@@ -82,22 +83,14 @@ public class JsonWithVCFExtenderCommand implements ICommand {
 		// 2 create sample
 		Sample sample = new Sample(sampleName);
 		this.variantsBuilder = new VariantsBuilder.Builder().build();
-
-		while (sampler.hasNext()) {
-			VariantContext vc = sampler.next();
-			if (vc.isSymbolic()) // skip symbolic variants
-				continue;
-
-			List<Variant> variants;
-			try {
-				variants = this.variantsBuilder.get(vc);
-
-			} catch (AnnotationException | InvalidCoordinatesException e) {
-				throw new RuntimeException("Cannot convert " + vc + " in variants", e);
-			}
-
-			sample.addAll(variants);
-		}
+		
+			sampler.stream().map(vc -> {
+				try {
+					return variantsBuilder.get(vc);
+				} catch (AnnotationException | InvalidCoordinatesException e) {
+					throw new RuntimeException("Cannot convert " + vc + " in variants", e);
+				}
+			}).flatMap(List::stream).forEach(sample::add);
 
 		System.out.println("Sample " + sampleName + " has " + sample.getScoresPerGene().size() + " genes");
 
