@@ -8,7 +8,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.OptionalDouble;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.apache.commons.io.IOUtils;
 import org.json.JSONArray;
@@ -29,12 +28,10 @@ import de.charite.compbio.pediasimulator.io.OMIMGeneLoader;
 import de.charite.compbio.pediasimulator.model.Gene;
 import de.charite.compbio.pediasimulator.model.Sample;
 import de.charite.compbio.pediasimulator.model.ScoreType;
-import de.charite.compbio.pediasimulator.model.Variant;
 import de.charite.compbio.pediasimulator.model.VariantsBuilder;
 import de.charite.compbio.simdrom.filter.IFilter;
 import de.charite.compbio.simdrom.filter.LessOrEqualInfoFieldFilter;
 import de.charite.compbio.simdrom.sampler.vcf.VCFSampler;
-import htsjdk.variant.variantcontext.VariantContext;
 import htsjdk.variant.vcf.VCFFileReader;
 import net.sourceforge.argparse4j.inf.Namespace;
 
@@ -83,14 +80,14 @@ public class JsonWithVCFExtenderCommand implements ICommand {
 		// 2 create sample
 		Sample sample = new Sample(sampleName);
 		this.variantsBuilder = new VariantsBuilder.Builder().build();
-		
-			sampler.stream().map(vc -> {
-				try {
-					return variantsBuilder.get(vc);
-				} catch (AnnotationException | InvalidCoordinatesException e) {
-					throw new RuntimeException("Cannot convert " + vc + " in variants", e);
-				}
-			}).flatMap(List::stream).forEach(sample::add);
+
+		sampler.stream().map(vc -> {
+			try {
+				return variantsBuilder.get(vc);
+			} catch (AnnotationException | InvalidCoordinatesException e) {
+				throw new RuntimeException("Cannot convert " + vc + " in variants", e);
+			}
+		}).flatMap(List::stream).forEach(sample::add);
 
 		System.out.println("Sample " + sampleName + " has " + sample.getScoresPerGene().size() + " genes");
 
@@ -110,7 +107,7 @@ public class JsonWithVCFExtenderCommand implements ICommand {
 		JSONArray jsonGenes = (JSONArray) jsonObject.get("geneList");
 		for (Object object : jsonGenes) {
 			JSONObject jsonGene = (JSONObject) object;
-			Gene gene = new Gene((String) jsonGene.get("gene_symbol"), (Integer) jsonGene.get("entrez_id"));
+			Gene gene = new Gene((String) jsonGene.get("gene_symbol"), Integer.parseInt((String) jsonGene.get("gene_id")));
 			usedGenes.add(gene);
 			if (sample.getScoresPerGene().containsKey(gene)) {
 				OptionalDouble maxRawScore = sample.getScoresPerGene().get(gene).get(ScoreType.CADD_RAW).stream()
@@ -137,7 +134,7 @@ public class JsonWithVCFExtenderCommand implements ICommand {
 				jsonGene.put("cadd_raw_score", maxRawScore.getAsDouble());
 				jsonGene.put("cadd_phred_score", maxPhredScore.getAsDouble());
 				jsonGene.put("gene_symbol", gene.getName());
-				jsonGene.put("entrez_id", gene.getEntrezGeneID());
+				jsonGene.put("gene_id", Integer.toString(gene.getEntrezGeneID()));
 				jsonGenes.put(jsonGene);
 			}
 
