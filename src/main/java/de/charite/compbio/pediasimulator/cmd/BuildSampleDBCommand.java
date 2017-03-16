@@ -85,6 +85,7 @@ public class BuildSampleDBCommand implements ICommand {
 				.add(new LessOrEqualInfoFieldFilter("AFR_AF", 0.01)).add(new LessOrEqualInfoFieldFilter("AMR_AF", 0.01))
 				.add(new LessOrEqualInfoFieldFilter("EAS_AF", 0.01)).add(new LessOrEqualInfoFieldFilter("EUR_AF", 0.01))
 				.add(new LessOrEqualInfoFieldFilter("SAS_AF", 0.01))
+				.add(new LessOrEqualInfoFieldFilter("1KG_BEST_AF", 0.01))
 				.add(new JannovarEffectInfoFilter(VariantEffect._SMALLEST_MODERATE_IMPACT))
 				.add(new JannovarGeneInfoFilter(genes)).build();
 		// 1.3 initial sampler

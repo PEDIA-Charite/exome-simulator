@@ -70,6 +70,7 @@ public class JsonWithVCFExtenderCommand implements ICommand {
 				.add(new LessOrEqualInfoFieldFilter("AFR_AF", 0.01)).add(new LessOrEqualInfoFieldFilter("AMR_AF", 0.01))
 				.add(new LessOrEqualInfoFieldFilter("EAS_AF", 0.01)).add(new LessOrEqualInfoFieldFilter("EUR_AF", 0.01))
 				.add(new LessOrEqualInfoFieldFilter("SAS_AF", 0.01))
+				.add(new LessOrEqualInfoFieldFilter("1KG_BEST_AF", 0.01))
 				.add(new JannovarEffectInfoFilter(VariantEffect._SMALLEST_MODERATE_IMPACT))
 				.add(new JannovarGeneInfoFilter(genes)).build();
 
@@ -107,7 +108,8 @@ public class JsonWithVCFExtenderCommand implements ICommand {
 		JSONArray jsonGenes = (JSONArray) jsonObject.get("geneList");
 		for (Object object : jsonGenes) {
 			JSONObject jsonGene = (JSONObject) object;
-			Gene gene = new Gene((String) jsonGene.get("gene_symbol"), Integer.parseInt((String) jsonGene.get("gene_id")));
+			Gene gene = new Gene((String) jsonGene.get("gene_symbol"),
+					Integer.parseInt((String) jsonGene.get("gene_id")));
 			usedGenes.add(gene);
 			if (sample.getScoresPerGene().containsKey(gene)) {
 				OptionalDouble maxRawScore = sample.getScoresPerGene().get(gene).get(ScoreType.CADD_RAW).stream()
