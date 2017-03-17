@@ -100,6 +100,8 @@ public class VariantsBuilder {
 
 		if (vc.isSymbolicOrSV())
 			return outputs;
+		if (vc.getContig().equals("MT"))
+			return outputs;
 
 		final String ref = vc.getReference().getBaseString();
 		final int pos = vc.getStart();
