@@ -1,12 +1,13 @@
 package de.charite.compbio.pediasimulator.model;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import com.google.common.collect.ImmutableList;
 
 import de.charite.compbio.jannovar.annotation.Annotation;
-import de.charite.compbio.jannovar.annotation.VariantAnnotations;
 import htsjdk.variant.variantcontext.Allele;
 
 public class Variant {
@@ -21,6 +22,7 @@ public class Variant {
 	private ImmutableList<Annotation> annotations;
 
 	private Map<ScoreType, Double> scores;
+	private Set<Gene> genes;
 
 	public Variant(String contig, int start, int end, String ref, String alt, ImmutableList<Annotation> annotations) {
 		this.contig = contig;
@@ -29,6 +31,14 @@ public class Variant {
 		this.ref = Allele.create(ref, true);
 		this.alt = Allele.create(alt, false);
 		this.annotations = annotations;
+	}
+
+	public Variant(String contig, int start, int end, String ref, String alt) {
+		this.contig = contig;
+		this.start = start;
+		this.end = end;
+		this.ref = Allele.create(ref, true);
+		this.alt = Allele.create(alt, false);
 	}
 
 	public String getContig() {
@@ -50,6 +60,10 @@ public class Variant {
 	public int getEnd() {
 		return end;
 	}
+	
+	public void setScores(Map<ScoreType, Double> scores) {
+		this.scores = scores;
+	}
 
 	public boolean isIndel() {
 		return getRef().length() != getAlt().length();
@@ -60,7 +74,7 @@ public class Variant {
 			scores = new HashMap<>();
 		return scores;
 	}
-	
+
 	public ImmutableList<Annotation> getAnnotations() {
 		return annotations;
 	}
@@ -68,14 +82,25 @@ public class Variant {
 	public void setScore(ScoreType type, double score) {
 		getScores().put(type, score);
 	}
-	
+
 	public void setAnnotations(ImmutableList<Annotation> annotations) {
 		this.annotations = annotations;
 	}
-	
+
 	@Override
 	public String toString() {
-		return contig + ":" + start + "-" +  end + ref.getBaseString()+ ">" + alt.getBaseString();
+		return contig + ":" + start + "-" + end + ref.getBaseString() + ">" + alt.getBaseString();
+	}
+	
+	public Set<Gene> getGenes() {
+		if (genes == null)
+			genes = new HashSet<>();
+		return genes;
+	}
+
+	public void setGene(Gene gene) {
+		getGenes().add(gene);
+		
 	}
 
 }

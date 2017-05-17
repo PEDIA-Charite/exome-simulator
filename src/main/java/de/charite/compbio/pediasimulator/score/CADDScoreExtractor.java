@@ -3,6 +3,7 @@ package de.charite.compbio.pediasimulator.score;
 import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
+import java.util.Map;
 
 import de.charite.compbio.pediasimulator.model.ScoreType;
 import de.charite.compbio.pediasimulator.model.Variant;
@@ -29,7 +30,7 @@ public class CADDScoreExtractor implements Closeable {
 		try {
 			double score = getCaddScore(variant.getContig(), variant.getStart(), end, variant.getRef(), variant.getAlt(),
 					variant.isIndel());
-			variant.setScore(ScoreType.CADD,score);
+			variant.setScore(ScoreType.CADD_RAW,score);
 		} catch (IOException e) {
 			throw new RuntimeException("Cannot query variant " + variant.toString(), e);
 		}

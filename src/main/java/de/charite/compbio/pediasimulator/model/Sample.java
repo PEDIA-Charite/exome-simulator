@@ -1,8 +1,9 @@
 package de.charite.compbio.pediasimulator.model;
 
 import java.util.HashMap;
-import java.util.Map;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import com.google.common.collect.ArrayListMultimap;
@@ -14,19 +15,17 @@ public class Sample {
 
 	private String name;
 
-	Map<String,ListMultimap<ScoreType,Double>> scoresPerGene;
+	Map<Gene, ListMultimap<ScoreType, Double>> scoresPerGene;
 
 	public Sample(String sampleName) {
 		this.name = sampleName;
-		scoresPerGene = new HashMap<>();
+		this.scoresPerGene = new HashMap<>();
 	}
 
 	public void add(Variant variant) {
-		Set<String> genes = new HashSet<>();
-		for (Annotation annotation : variant.getAnnotations()) {
-			genes.add(annotation.getGeneSymbol());
-		}
-		for (String gene : genes) {
+		Set<Gene> genes = new HashSet<>();
+		genes.addAll(variant.getGenes());
+		for (Gene gene : genes) {
 			if (!scoresPerGene.containsKey(gene))
 				scoresPerGene.put(gene, ArrayListMultimap.create());
 			for (ScoreType type : variant.getScores().keySet())
@@ -34,9 +33,22 @@ public class Sample {
 		}
 
 	}
-	
-	public Map<String, ListMultimap<ScoreType, Double>> getScoresPerGene() {
+
+	public Map<Gene, ListMultimap<ScoreType, Double>> getScoresPerGene() {
 		return scoresPerGene;
 	}
+
+	public void addAll(List<Variant> variants) {
+		for (Variant variant : variants) {
+			add(variant);
+		}
+	}
+
+	@Override
+	public String toString() {
+		return "Sample [name=" + name + ", scoresPerGene=" + scoresPerGene + "]";
+	}
+	
+	
 
 }

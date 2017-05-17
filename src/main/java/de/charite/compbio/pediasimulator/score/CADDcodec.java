@@ -58,8 +58,8 @@ public class CADDcodec extends AsciiFeatureCodec<CADDScoreFeature> {
 	 * 
 	 * @param tokens
 	 *            of a tabix cadd line
-	 * @return the transformated tokens into a {@link PathogenicityScoreVariant} containing {@link ScoreType#CADD} and
-	 *         {@link ScoreType#CADD_PHRED}.
+	 * @return the transformated tokens into a {@link PathogenicityScoreVariant} containing {@link ScoreType#CADD_RAW} and
+	 *         {@link ScoreType#CADD_RAW}.
 	 */
 	public CADDScoreFeature decode(String[] tokens) {
 		int tokenCount = tokens.length;
