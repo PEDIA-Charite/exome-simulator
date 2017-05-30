@@ -108,8 +108,7 @@ public class JsonWithVCFExtenderCommand implements ICommand {
 		JSONArray jsonGenes = (JSONArray) jsonObject.get("geneList");
 		for (Object object : jsonGenes) {
 			JSONObject jsonGene = (JSONObject) object;
-			Gene gene = new Gene((String) jsonGene.get("gene_symbol"),
-					Integer.parseInt((String) jsonGene.get("gene_id")));
+			Gene gene = new Gene((String) jsonGene.get("gene_symbol"), jsonGene.getInt("gene_id"));
 			usedGenes.add(gene);
 			if (sample.getScoresPerGene().containsKey(gene)) {
 				OptionalDouble maxRawScore = sample.getScoresPerGene().get(gene).get(ScoreType.CADD_RAW).stream()
@@ -136,7 +135,7 @@ public class JsonWithVCFExtenderCommand implements ICommand {
 				jsonGene.put("cadd_raw_score", maxRawScore.getAsDouble());
 				jsonGene.put("cadd_phred_score", maxPhredScore.getAsDouble());
 				jsonGene.put("gene_symbol", gene.getName());
-				jsonGene.put("gene_id", Integer.toString(gene.getEntrezGeneID()));
+				jsonGene.put("gene_id", gene.getEntrezGeneID());
 				jsonGenes.put(jsonGene);
 			}
 
