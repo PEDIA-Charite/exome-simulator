@@ -112,7 +112,7 @@ Example:
 java -jar pedia-simulator-0.0.1-SNAPSHOT.jar spike-in \
 	-m mutations.vcf.gz -v background.vcf.gz \
 	-o omim_genemap2.txt \
-	-out outdir
+	-out outfile.vcf.gz
 ```
 
 If you want to generate files only for a subset of samples you can use the `--sample` option to define one ore more samples of the mutation VCF. 
@@ -143,9 +143,9 @@ zcat refseq/ref_GRCh37.p13_top_level.gff3.gz | \
 	sed 's/NC_000006.11/6/g' | \
 	sed 's/NC_000007.13/7/g' | \
 	sed 's/NC_000008.10/8/g' | \
-	sed 's/NC_000011.9/9/g' | \
+	sed 's/NC_000009.11/9/g' | \
 	sed 's/NC_000010.10/10/g' | \
-	sed 's/NC_000009.11/11/g' | \
+	sed 's/NC_000011.9/11/g' | \
 	sed 's/NC_000012.11/12/g' | \
 	sed 's/NC_000013.10/13/g' | \
 	sed 's/NC_000014.8/14/g' | \
