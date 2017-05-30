@@ -97,7 +97,7 @@ public class SpikeInCommand implements ICommand {
 			
 			// 3.2 iterate over variants and write VCF file
 			VariantContextWriter writer = new VariantContextWriterBuilder()
-					.setOutputFile(options.getFolder() + "/" + sampleName + "_" + backgroundName + ".vcf.gz").build();
+					.setOutputFile(options.getFolder() + "/" + sampleName + ".vcf.gz").build();
 
 			// Header
 			VCFHeader header = spikeIn.getVCFHeader();
@@ -116,7 +116,7 @@ public class SpikeInCommand implements ICommand {
 			writer.close();
 			spikeIn.close();
 
-			System.out.printf(" --- created %s_%s.vcf.gz with %d variants.\n", sampleName, backgroundName, variantCount);
+			System.out.printf(" --- created %s.vcf.gz with %d variants.\n", sampleName, variantCount);
 		}
 
 		System.exit(0);
