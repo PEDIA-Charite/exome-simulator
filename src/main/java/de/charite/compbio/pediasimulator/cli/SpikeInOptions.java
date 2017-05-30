@@ -15,7 +15,7 @@ public class SpikeInOptions {
 	private File vcfInputFile;
 	private File vcfMutationFile;
 	private File omimFile;
-	private String folder;
+	private File outputFile;
 	private Integer seed;
 	private List<String> samples;
 
@@ -32,8 +32,8 @@ public class SpikeInOptions {
 		parser.addArgument("-v", "--variants").type(File.class).nargs(1).required(true)
 				.help("VCF file of input variants (background)");
 		parser.addArgument("-m", "--mutations").type(File.class).nargs(1).required(true).help("VCF file of mutations");
-		parser.addArgument("-out", "--output-folder").type(String.class).nargs(1).required(true)
-				.help("VCF file of input variants");
+		parser.addArgument("-out", "--output").type(File.class).nargs(1).required(true)
+				.help("Putput VCF file of spikein variants");
 		parser.addArgument("-o", "--omim").type(File.class).nargs(1).required(true).help("OMIM genemap2 file!");
 		parser.addArgument("-s", "--seed").type(Integer.class).nargs("?").help("Seed for picking pick random sample.");
 		parser.addArgument("--sample").type(String.class).setDefault(new ArrayList<>()).nargs("*").help(
@@ -46,7 +46,7 @@ public class SpikeInOptions {
 		this.vcfInputFile = (File) res.getList("variants").get(0);
 		this.vcfMutationFile = (File) res.getList("mutations").get(0);
 		this.omimFile = (File) res.getList("omim").get(0);
-		this.folder = (String) res.getList("output_folder").get(0);
+		this.outputFile = (File) res.getList("output").get(0);
 		this.seed = res.getInt("seed");
 		this.samples = res.getList("sample");
 	}
@@ -59,8 +59,8 @@ public class SpikeInOptions {
 		return omimFile;
 	}
 
-	public String getFolder() {
-		return folder;
+	public File getOutputFile() {
+		return outputFile;
 	}
 
 	public File getVcfMutationFile() {
