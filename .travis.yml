@@ -1,4 +1,15 @@
 sudo: false
+
+before_install:
+ - 'path=`pwd`' 
+ - 'git clone https://github.com/visze/simdrom.git simdrom'
+ - 'cd /builds/simdrom'
+ - 'git checkout development'
+ - 'mvn $MAVEN_CLI_OPTS install'
+ - 'cd $path'
+ - 'mvn $MAVEN_CLI_OPTS test package'
+
+
 language: java
 
 jdk:
