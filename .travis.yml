@@ -3,11 +3,11 @@ sudo: false
 before_install:
  - 'path=`pwd`' 
  - 'git clone https://github.com/visze/simdrom.git simdrom'
- - 'cd /builds/simdrom'
+ - 'cd simdrom'
  - 'git checkout development'
- - 'mvn $MAVEN_CLI_OPTS install'
+ - 'mvn --batch-mode --errors --fail-at-end --show-version -DinstallAtEnd=true -DdeployAtEnd=true -Dmaven.test.skip=true install'
  - 'cd $path'
- - 'mvn $MAVEN_CLI_OPTS test package'
+ - 'mvn --batch-mode --errors --fail-at-end --show-version -DinstallAtEnd=true -DdeployAtEnd=true -Dmaven.test.skip=true test package'
 
 
 language: java
