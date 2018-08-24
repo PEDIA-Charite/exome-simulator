@@ -36,6 +36,8 @@ public class VariantsBuilder {
 	private ImmutableMap<Integer, Chromosome> chromosomeMap;
 	private VariantAnnotator annotator;
 	private VariantNormalizer variantNormalizer;
+	private final double framshift_cadd_raw = 5.0;
+	private final double framshift_cadd_phred = 25.0;
 
 	private VariantsBuilder(JannovarData jannovarData, ReferenceDictionary refDict,
 			ImmutableMap<Integer, Chromosome> chromosomeMap, VariantAnnotator annotator,
@@ -48,6 +50,23 @@ public class VariantsBuilder {
 	}
 
 	private VariantsBuilder() {
+	}
+
+	private boolean checkFrameshift(String effect) {
+		String effects[] = effect.split("&");
+		boolean result = false;
+		for (int i = 0; i < effects.length; i++) {
+			switch (effects[i]) {
+				case "frameshift_variant":
+				case "frameshift_elongation":
+				case "frameshift_truncation":
+					result = result | true;
+					break;
+				default:
+					// result = result | false;
+			}
+		}
+		return result;
 	}
 
 	public static final class Builder {
@@ -141,6 +160,7 @@ public class VariantsBuilder {
 
 			List<Object> annotation = vc.getCommonInfo().getAttributeAsList("ANN");
 			for (int i = 0; i < vc.getAlternateAlleles().size(); i++) {
+				boolean isFrameshift = checkFrameshift(((String) annotation.get(i)).split("\\|")[1]);
 				final String alt = vc.getAlternateAllele(i).getBaseString();
 				Variant variant = new Variant(vc.getContig(), pos, vc.getEnd(), ref, alt);
 				if (alt.length() == ref.length()) {
@@ -181,8 +201,13 @@ public class VariantsBuilder {
 						value_phred = Splitter.on("|").splitToList((String) phred_indel.get(i)).stream()
 								.mapToDouble(s -> Double.parseDouble(s)).max();
 					}
-					variant.setScore(ScoreType.CADD_RAW, value_raw.getAsDouble());
-					variant.setScore(ScoreType.CADD_PHRED, value_phred.getAsDouble());
+					if (isFrameshift){
+						variant.setScore(ScoreType.CADD_RAW, Double.max(framshift_cadd_raw, value_raw.getAsDouble()));
+						variant.setScore(ScoreType.CADD_PHRED, Double.max(framshift_cadd_phred, value_phred.getAsDouble()));
+					} else {
+						variant.setScore(ScoreType.CADD_RAW, value_raw.getAsDouble());
+						variant.setScore(ScoreType.CADD_PHRED, value_phred.getAsDouble());
+					}
 				}
 
 				variant.setGene(new Gene(((String) annotation.get(i)).split("\\|")[3],
