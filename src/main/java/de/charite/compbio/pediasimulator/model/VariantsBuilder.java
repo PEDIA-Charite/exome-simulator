@@ -124,6 +124,7 @@ public class VariantsBuilder {
 
 		final String ref = vc.getReference().getBaseString();
 		final int pos = vc.getStart();
+
 		if (jannovarData != null) {
 
 			Integer boxedInt = refDict.getContigNameToID().get(vc.getContig());
@@ -166,40 +167,51 @@ public class VariantsBuilder {
 				if (alt.length() == ref.length()) {
 					if (vc.isMNP() || raw_snv.isEmpty() || ((String) raw_snv.get(i)).equals(".")) { // MSNP are problematic
 						variant.setScore(ScoreType.CADD_RAW, Splitter.on("|").splitToList((String) raw_snv_ovl.get(0))
-								.stream().mapToDouble(s -> Double.parseDouble(s)).max().getAsDouble());
+								.stream().mapToDouble(s -> s.equals(".") ? 0 : Double.parseDouble(s)).max().getAsDouble());
 						variant.setScore(ScoreType.CADD_PHRED,
 								Splitter.on("|").splitToList((String) phred_snv_ovl.get(0)).stream()
-										.mapToDouble(s -> Double.parseDouble(s)).max().getAsDouble());
+										.mapToDouble(s -> s.equals(".") ? 0 : Double.parseDouble(s)).max().getAsDouble());
 					} else {
-						variant.setScore(ScoreType.CADD_RAW, Double.parseDouble((String) raw_snv.get(i)));
-						variant.setScore(ScoreType.CADD_PHRED, Double.parseDouble((String) phred_snv.get(i)));
+						String raw = (String) raw_snv.get(i);
+						if (raw.equals(".")) {
+							raw = "0";
+						}
+						String phred = (String) phred_snv.get(i);
+						if (phred.equals(".")) {
+							phred = "0";
+						}
+						variant.setScore(ScoreType.CADD_RAW, Double.parseDouble(raw));
+						variant.setScore(ScoreType.CADD_PHRED, Double.parseDouble(phred));
 					}
 				} else {
 					OptionalDouble value_raw;
 					OptionalDouble value_phred;
-					if (raw_indel.isEmpty()) {
+					if (raw_indel_ovl.isEmpty() && raw_snv_ovl.isEmpty()) {
+						value_raw = OptionalDouble.of(0.0);
+						value_phred = OptionalDouble.of(0.0);
+					} else if (raw_indel.isEmpty()) {
 						// use SNVs if no indel variant is present...
 						if (raw_indel_ovl.isEmpty()) {
 							value_raw = Splitter.on("|").splitToList((String) raw_snv_ovl.get(0)).stream()
-									.mapToDouble(s -> Double.parseDouble(s)).max();
+									.mapToDouble(s -> s.equals(".") ? 0 : Double.parseDouble(s)).max();
 							value_phred = Splitter.on("|").splitToList((String) phred_snv_ovl.get(0)).stream()
-									.mapToDouble(s -> Double.parseDouble(s)).max();
+									.mapToDouble(s -> s.equals(".") ? 0 : Double.parseDouble(s)).max();
 						} else {
 							value_raw = Splitter.on("|").splitToList((String) raw_indel_ovl.get(0)).stream()
-									.mapToDouble(s -> Double.parseDouble(s)).max();
+									.mapToDouble(s -> s.equals(".") ? 0 : Double.parseDouble(s)).max();
 							value_phred = Splitter.on("|").splitToList((String) phred_indel_ovl.get(0)).stream()
-									.mapToDouble(s -> Double.parseDouble(s)).max();
+									.mapToDouble(s -> s.equals(".") ? 0 : Double.parseDouble(s)).max();
 						}
 					} else if (((String) raw_indel.get(i)).equals(".")) {
 						value_raw = Splitter.on("|").splitToList((String) raw_indel_ovl.get(0)).stream()
-								.mapToDouble(s -> Double.parseDouble(s)).max();
+								.mapToDouble(s -> s.equals(".") ? 0 : Double.parseDouble(s)).max();
 						value_phred = Splitter.on("|").splitToList((String) phred_indel_ovl.get(0)).stream()
-								.mapToDouble(s -> Double.parseDouble(s)).max();
+								.mapToDouble(s -> s.equals(".") ? 0 : Double.parseDouble(s)).max();
 					} else {
 						value_raw = Splitter.on("|").splitToList((String) raw_indel.get(i)).stream()
-								.mapToDouble(s -> Double.parseDouble(s)).max();
+								.mapToDouble(s -> s.equals(".") ? 0 : Double.parseDouble(s)).max();
 						value_phred = Splitter.on("|").splitToList((String) phred_indel.get(i)).stream()
-								.mapToDouble(s -> Double.parseDouble(s)).max();
+								.mapToDouble(s -> s.equals(".") ? 0 : Double.parseDouble(s)).max();
 					}
 					if (isFrameshift){
 						variant.setScore(ScoreType.CADD_RAW, Double.max(framshift_cadd_raw, value_raw.getAsDouble()));
