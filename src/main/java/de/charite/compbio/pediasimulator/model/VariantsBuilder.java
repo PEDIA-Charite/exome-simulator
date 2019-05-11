@@ -124,7 +124,6 @@ public class VariantsBuilder {
 
 		final String ref = vc.getReference().getBaseString();
 		final int pos = vc.getStart();
-
 		if (jannovarData != null) {
 
 			Integer boxedInt = refDict.getContigNameToID().get(vc.getContig());
@@ -158,6 +157,11 @@ public class VariantsBuilder {
 			List<Object> raw_indel = vc.getCommonInfo().getAttributeAsList("CADD_INDEL_RawScore");
 			List<Object> raw_indel_ovl = vc.getCommonInfo().getAttributeAsList("CADD_INDEL_OVL_RawScore");
 			List<Object> phred_indel_ovl = vc.getCommonInfo().getAttributeAsList("CADD_INDEL_OVL_PHRED");
+
+			if (raw_snv_ovl.size() == 0) {
+				System.out.println("No CADD annotation: " + vc);
+				return outputs;
+			}
 
 			List<Object> annotation = vc.getCommonInfo().getAttributeAsList("ANN");
 			for (int i = 0; i < vc.getAlternateAlleles().size(); i++) {
