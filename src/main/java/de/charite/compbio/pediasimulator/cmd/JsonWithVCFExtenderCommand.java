@@ -135,7 +135,7 @@ public class JsonWithVCFExtenderCommand implements ICommand {
 				jsonGene.put("cadd_raw_score", maxRawScore.getAsDouble());
 				jsonGene.put("cadd_phred_score", maxPhredScore.getAsDouble());
 				jsonGene.put("gene_symbol", gene.getName());
-				jsonGene.put("gene_id", gene.getEntrezGeneID());
+				jsonGene.put("gene_id", String.valueOf(gene.getEntrezGeneID()));
 				jsonGenes.put(jsonGene);
 			}
 
