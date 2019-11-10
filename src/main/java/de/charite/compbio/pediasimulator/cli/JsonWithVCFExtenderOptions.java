@@ -14,6 +14,7 @@ public class JsonWithVCFExtenderOptions {
 	private File omimFile;
 	private File jsonFile;
 	private File outputFile;
+	private int sampleIndex;
 
 	public static void setupParser(Subparsers subparsers) {
 		BiFunction<String[], Namespace, JsonWithVCFExtenderCommand> handler = (argv, args) -> {
@@ -31,6 +32,7 @@ public class JsonWithVCFExtenderOptions {
 		parser.addArgument("-out", "--output-file").type(File.class).nargs(1).required(true)
 				.help("VCF file of input variants");
 		parser.addArgument("-o", "--omim").type(File.class).nargs(1).required(true).help("OMIM genemap2 file!");
+		parser.addArgument("-s", "--sample-index").type(Integer.class).setDefault(0).help("Index of sample which would like to analyze in multi-vcf.");
 
 		parser.defaultHelp(true);
 	}
@@ -40,6 +42,7 @@ public class JsonWithVCFExtenderOptions {
 		this.jsonFile = (File) res.getList("json_file").get(0);
 		this.omimFile = (File) res.getList("omim").get(0);
 		this.outputFile = (File) res.getList("output_file").get(0);
+		this.sampleIndex = (Integer) res.get("sample_index");
 	}
 
 	public File getVcfInputFile() {
@@ -58,4 +61,7 @@ public class JsonWithVCFExtenderOptions {
 		return outputFile;
 	}
 
+	public Integer getSampleIndex() {
+		return sampleIndex;
+	}
 }

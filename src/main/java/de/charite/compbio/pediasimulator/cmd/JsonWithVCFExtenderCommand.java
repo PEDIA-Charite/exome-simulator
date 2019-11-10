@@ -75,7 +75,8 @@ public class JsonWithVCFExtenderCommand implements ICommand {
 				.add(new JannovarGeneInfoFilter(genes)).build();
 
 		// 1.4 ini sampler
-		String sampleName = vcfReader.getFileHeader().getSampleNamesInOrder().get(0);
+		int sampleIndex = options.getSampleIndex();
+		String sampleName = vcfReader.getFileHeader().getGenotypeSamples().get(sampleIndex);
 		VCFSampler sampler = new VCFSampler.Builder().vcfReader(vcfReader).filters(filters).sample(sampleName).build();
 
 		// 2 create sample
